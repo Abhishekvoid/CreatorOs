@@ -1,6 +1,8 @@
 import Counter from "./Counter";
 import { VerifiedBadge } from "./ui";
 
+import Link from "next/link";
+
 const AVATARS = [
   "https://randomuser.me/api/portraits/women/65.jpg",
   "https://randomuser.me/api/portraits/men/32.jpg",
@@ -79,12 +81,12 @@ export default function Hero() {
             <b className="font-bold text-ink-2">You keep 100% of what you earn.</b>
           </p>
           <div className="h-anim mb-8 flex flex-wrap gap-3.5 max-lg:justify-center" style={{ animationDelay: "0.35s" }}>
-            <a href="#final" className="btn btn-grad btn-lg">
+            <a href="#" className="btn btn-grad btn-lg">
               Claim your free link <span className="arr">→</span>
             </a>
-            <a href="#how" className="btn btn-ghost btn-lg">
+            <Link href="/demo" className="btn btn-ghost btn-lg">
               See how it works
-            </a>
+            </Link>
           </div>
           <div className="h-anim flex items-center gap-3.5" style={{ animationDelay: "0.45s" }}>
             <div className="flex">
