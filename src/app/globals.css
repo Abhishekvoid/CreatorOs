@@ -219,6 +219,29 @@ body::before {
   .slot-taken { opacity: 0.38; text-decoration: line-through; pointer-events: none; }
   .slot-sel { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-cream); }
   .slot-sel:hover { color: var(--color-cream); border-color: var(--color-ink); }
+
+  /* form fields (booking & checkout) */
+  .field {
+    width: 100%;
+    border-radius: 14px;
+    border: 1.5px solid var(--color-line);
+    background: var(--color-paper);
+    padding: 11px 15px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--color-ink);
+    outline: none;
+    transition: border-color 0.25s var(--ease-soft), box-shadow 0.25s var(--ease-soft);
+  }
+  .field::placeholder { color: var(--color-muted); font-weight: 500; }
+  .field:hover { border-color: var(--color-line-2); }
+  .field:focus { border-color: var(--color-ink); box-shadow: 0 0 0 4px rgb(25 23 18 / 0.06); }
+}
+
+/* small spring pop for values that change (order summary, slot panels) */
+.pop-in { animation: pop-in 0.35s var(--ease-spring); }
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.94) translateY(3px); }
 }
 
 /* ============ scroll reveal ============ */
