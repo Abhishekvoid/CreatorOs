@@ -2,13 +2,13 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { VerifiedBadge } from "../ui";
 
 /* ---------------- pricing ---------------- */
 const MRP = 1999;
 const PRICE = 1499;
-const GST = Math.round(PRICE * 0.18);
-const TOTAL = PRICE + GST;
+const TOTAL = PRICE; // MVP: all-inclusive price, no tax line items
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 
 /* ---------------- availability model ---------------- */
@@ -181,10 +181,11 @@ export default function BookingFlow() {
   const [today, setToday] = useState<Date | null>(null);
   useEffect(() => setToday(startOfDay(new Date())), []);
 
+  const router = useRouter();
   const [date, setDate] = useState<Date | null>(null);
   const [slot, setSlot] = useState<string | null>(null);
   const [challenge, setChallenge] = useState<string | null>(null);
-  const [phase, setPhase] = useState<"idle" | "processing" | "done">("idle");
+  const [phase, setPhase] = useState<"idle" | "processing">("idle");
 
   const ready = date !== null && slot !== null;
   const taken = date && today ? takenSlots(date, today) : new Set<string>();
@@ -198,21 +199,21 @@ export default function BookingFlow() {
   function continueToPayment() {
     if (!ready || phase !== "idle") return;
     setPhase("processing");
-    setTimeout(() => setPhase("done"), 1400);
-    setTimeout(() => setPhase("idle"), 4200);
+    const d = `${date!.getFullYear()}-${String(date!.getMonth() + 1).padStart(2, "0")}-${String(
+      date!.getDate()
+    ).padStart(2, "0")}`;
+    router.push(`/meera/book/payment?d=${d}&t=${encodeURIComponent(slot!)}`);
   }
 
   const ctaLabel =
     phase === "processing" ? (
       <>
         <span className="size-4 animate-spin rounded-full border-2 border-white/35 border-t-white" aria-hidden="true" />
-        Contacting Razorpay…
+        Opening secure checkout…
       </>
-    ) : phase === "done" ? (
-      <>✓ Redirecting to Razorpay</>
     ) : ready ? (
       <>
-        Continue to Payment <span className="arr">→</span>
+        Continue • {inr(TOTAL)} <span className="arr">→</span>
       </>
     ) : (
       <>Select a date &amp; time</>
@@ -493,6 +494,12 @@ export default function BookingFlow() {
                 </div>
                 <div className="truncate text-[12px] font-semibold text-muted">Career Coach · replies in ~2 hrs</div>
               </div>
+              <a
+                href="/meera"
+                className="ml-auto shrink-0 rounded-full border border-line bg-paper px-3 py-1.5 text-[12px] font-bold text-ink-2 transition-all duration-300 hover:-translate-y-px hover:border-ink"
+              >
+                View profile
+              </a>
             </div>
 
             <div className="p-6">
@@ -525,15 +532,7 @@ export default function BookingFlow() {
               <dl className="mt-4 flex flex-col gap-2.5 border-t border-line pt-4 text-[13.5px]">
                 <div className="flex items-baseline justify-between">
                   <dt className="font-semibold text-muted">Session fee</dt>
-                  <dd className="font-bold">{inr(MRP)}</dd>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <dt className="font-semibold text-muted">Launch discount</dt>
-                  <dd className="font-bold text-green-deep">− {inr(MRP - PRICE)}</dd>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <dt className="font-semibold text-muted">GST (18%)</dt>
-                  <dd className="font-bold">{inr(GST)}</dd>
+                  <dd className="font-bold">{inr(PRICE)}</dd>
                 </div>
                 <div className="mt-1 flex items-baseline justify-between border-t border-line pt-3.5">
                   <dt className="text-[14.5px] font-extrabold">Total</dt>
@@ -541,7 +540,11 @@ export default function BookingFlow() {
                 </div>
               </dl>
 
-              <div className="mt-5">{cta()}</div>
+              <div className="mt-4 flex items-center justify-center gap-1.5 text-[12px] font-bold text-[#9A6A14]">
+                <span className="size-1.5 rounded-full bg-amber animate-pulse-dot" aria-hidden="true" />
+                Only 3 slots left this week · last booked 12 min ago
+              </div>
+              <div className="mt-2.5">{cta()}</div>
               <p className="mt-3 text-center text-[12px] font-semibold text-muted">
                 {ready ? "You'll review everything before paying." : "Pick a date and time above to continue."}
               </p>
@@ -600,7 +603,7 @@ export default function BookingFlow() {
                   {dateLabel(date!)} · {slot} IST
                 </span>
               ) : (
-                "incl. GST · pick a date & time"
+                "no hidden fees · pick a date & time"
               )}
             </div>
           </div>

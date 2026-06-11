@@ -1,9 +1,15 @@
-export default function CheckoutNav() {
+export default function CheckoutNav({
+  backHref = "/meera",
+  backLabel,
+}: {
+  backHref?: string;
+  backLabel?: React.ReactNode;
+}) {
   return (
     <header className="fixed inset-x-0 top-0 z-100 border-b border-line bg-cream/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-[1160px] items-center justify-between gap-3 px-6">
         <a
-          href="/meera"
+          href={backHref}
           className="group flex min-w-0 items-center gap-2 text-[14px] font-bold text-ink-2 transition-colors hover:text-ink"
         >
           <svg
@@ -19,7 +25,11 @@ export default function CheckoutNav() {
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
           <span className="truncate">
-            <span className="text-faint">creatoros.in/</span>meera
+            {backLabel ?? (
+              <>
+                <span className="text-faint">creatoros.in/</span>meera
+              </>
+            )}
           </span>
         </a>
 
