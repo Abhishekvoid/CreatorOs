@@ -150,3 +150,28 @@ create policy "Users upload own avatar" on storage.objects
 drop policy if exists "Users update own avatar" on storage.objects;
 create policy "Users update own avatar" on storage.objects
   for update using (bucket_id = 'avatars' and split_part(name, '.', 1) = auth.uid()::text);
+
+-- ============================================================
+-- Part 3 — availability replace function
+-- A plpgsql body runs as one transaction: the delete and insert
+-- land together or not at all. SECURITY INVOKER, so the caller's
+-- RLS policies on availability still apply.
+-- ============================================================
+
+create or replace function public.replace_availability(slots jsonb)
+returns void
+language plpgsql
+security invoker
+as $$
+begin
+  delete from public.availability where profile_id = auth.uid();
+  insert into public.availability (profile_id, day_of_week, start_time, end_time, is_active)
+  select
+    auth.uid(),
+    (s->>'day_of_week')::int,
+    (s->>'start_time')::time,
+    (s->>'end_time')::time,
+    coalesce((s->>'is_active')::boolean, true)
+  from jsonb_array_elements(slots) as s;
+end;
+$$;
