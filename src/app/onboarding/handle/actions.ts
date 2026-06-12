@@ -46,7 +46,7 @@ export async function claimHandle(handle: string): Promise<{ error: ClaimError }
   const { error } = await supabase.from("profiles").insert({
     id: user.id,
     handle,
-    onboarding_step: 2,
+    completed_steps: { handle: true },
     is_published: false,
   });
 

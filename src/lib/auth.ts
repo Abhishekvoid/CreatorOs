@@ -22,30 +22,39 @@ export function sanitizeHandle(raw: string): string {
   return raw.toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, HANDLE_MAX);
 }
 
-/** Wizard step → route. Steps: 1 handle, 2 profile, 3 services. */
-export function onboardingRoute(step: number | null | undefined): string {
-  switch (step) {
-    case 1:
-      return "/onboarding/handle";
-    case 2:
-      return "/onboarding/profile";
-    case 3:
-      return "/onboarding/services";
-    default:
-      return "/dashboard";
-  }
-}
+/**
+ * The wizard, in order. completed_steps on the profiles row is a jsonb map
+ * of these keys to true; a creator resumes at the first key that isn't set.
+ * (The legacy onboarding_step integer still exists in the DB but nothing
+ * reads it anymore — it gets dropped in a follow-up migration.)
+ */
+export const ONBOARDING_STEPS = [
+  { key: "handle", route: "/onboarding/handle" },
+  { key: "profile", route: "/onboarding/profile" },
+  { key: "services", route: "/onboarding/services" },
+  { key: "availability", route: "/onboarding/availability" },
+  { key: "payments", route: "/onboarding/payments" },
+] as const;
+
+export type CompletedSteps = Partial<Record<string, boolean>>;
 
 export type ProfileRouteRow = {
-  onboarding_step: number | null;
+  completed_steps: CompletedSteps | null;
   is_published: boolean | null;
 };
+
+/** Columns every redirect decision needs — keep selects in sync via this. */
+export const PROFILE_ROUTE_COLUMNS = "completed_steps, is_published";
 
 /** Where a signed-in creator belongs, given their profiles row (or lack of one). */
 export function destinationFor(profile: ProfileRouteRow | null): string {
   if (!profile) return "/onboarding/handle";
   if (profile.is_published) return "/dashboard";
-  return onboardingRoute(profile.onboarding_step);
+  const done = profile.completed_steps ?? {};
+  for (const step of ONBOARDING_STEPS) {
+    if (!done[step.key]) return step.route;
+  }
+  return "/onboarding/publish";
 }
 
 /** Fetches the profiles row and resolves the redirect in one call. */
@@ -55,7 +64,7 @@ export async function postAuthDestination(
 ): Promise<string> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("onboarding_step, is_published")
+    .select(PROFILE_ROUTE_COLUMNS)
     .eq("id", userId)
     .maybeSingle<ProfileRouteRow>();
   return destinationFor(profile);

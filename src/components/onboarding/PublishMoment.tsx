@@ -3,7 +3,7 @@
 import confetti from "canvas-confetti";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { loadDraft } from "@/lib/profileStore";
+import { getProfileDraft } from "@/lib/actions/profile";
 import { slugify } from "@/lib/creator";
 
 /**
@@ -27,7 +27,7 @@ export default function PublishMoment() {
   const [staticReveal, setStaticReveal] = useState(false);
 
   useEffect(() => {
-    loadDraft().then((d) => {
+    getProfileDraft().then((d) => {
       setHandle(d.handle || slugify(d.name) || "you");
       if (reducedMotion()) {
         setStaticReveal(true);

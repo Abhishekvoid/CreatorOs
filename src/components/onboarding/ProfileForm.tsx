@@ -11,11 +11,10 @@ import {
   emptyDraft,
   normalizeSocial,
   PRESET_LANGUAGES,
-  slugify,
   validateSocial,
   validateWhatsapp,
 } from "@/lib/creator";
-import { loadDraft, saveAvatar, saveDraft } from "@/lib/profileStore";
+import { getProfileDraft, saveProfileDraft, uploadAvatar } from "@/lib/actions/profile";
 
 /* ---------------- small building blocks ---------------- */
 
@@ -191,9 +190,9 @@ export default function ProfileForm() {
   const [submitted, setSubmitted] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  /* rehydrate exactly as the creator left it */
+  /* rehydrate exactly as the creator left it — from their profiles row */
   useEffect(() => {
-    loadDraft().then((d) => {
+    getProfileDraft().then((d) => {
       setDraft(d);
       setLoaded(true);
     });
@@ -203,8 +202,8 @@ export default function ProfileForm() {
   useEffect(() => {
     if (!loaded || saveState !== "dirty") return;
     const t = setTimeout(async () => {
-      await saveDraft(draft);
-      setSaveState("saved");
+      const res = await saveProfileDraft(draft);
+      if (res.success) setSaveState("saved");
     }, 800);
     return () => clearTimeout(t);
   }, [draft, saveState, loaded]);
@@ -238,8 +237,10 @@ export default function ProfileForm() {
       document.getElementById(`field-${firstBad ?? "socials"}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    const finalDraft = { ...draft, handle: draft.handle || slugify(draft.name), onboardingStep: 3 };
-    await saveDraft(finalDraft);
+    // complete: true marks {"profile": true} in completed_steps — the handle
+    // itself was claimed in step 1 and is never written from here
+    const res = await saveProfileDraft(draft, { complete: true });
+    if (!res.success) return; // stay put; the draft autosave will retry
     router.push("/onboarding/services");
   }
 
@@ -259,7 +260,7 @@ export default function ProfileForm() {
             name={draft.name}
             error={null}
             onCropped={async (dataUrl) => {
-              const url = await saveAvatar(dataUrl); // saves immediately, outside the autosave cycle
+              const url = await uploadAvatar(dataUrl); // straight to storage, outside the autosave cycle
               update({ avatar: url });
             }}
           />
