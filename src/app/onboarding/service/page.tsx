@@ -1,16 +1,25 @@
 import type { Metadata } from "next";
-import ProfileForm from "@/components/onboarding/ProfileForm";
+import { redirect } from "next/navigation";
+import ServiceForm from "@/components/onboarding/ServiceForm";
 import WizardHeader from "@/components/onboarding/WizardHeader";
+import { getProfileDraft } from "@/lib/actions/profile";
+import { getServiceDraft } from "@/lib/actions/service";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export const metadata: Metadata = {
-  title: "Set up your profile | CreatorOS",
-  description: "Add your photo, headline and bio — and watch your public page take shape live.",
+  title: "Your first service | CreatorOS",
+  description: "Set up the session clients will book — and watch the real card take shape live.",
 };
 
-export default function OnboardingProfilePage() {
+export default async function OnboardingServicePage() {
+  const [profile, service] = await Promise.all([getProfileDraft(), getServiceDraft()]);
+
+  // No handle means no profiles row — this creator hasn't claimed yet.
+  if (isSupabaseConfigured && !profile.handle) redirect("/onboarding/handle");
+
   return (
     <>
-      <WizardHeader current={1} />
+      <WizardHeader current={2} />
 
       <main data-register="product" className="relative overflow-hidden">
         {/* same ambient wash family as the rest of the product */}
@@ -23,19 +32,19 @@ export default function OnboardingProfilePage() {
         />
         <div className="relative mx-auto max-w-[1240px] px-6 pb-[clamp(80px,10vw,140px)] pt-[clamp(40px,6vw,72px)]">
           <div className="h-anim mb-10 max-w-[560px]" style={{ animationDelay: "0.05s" }}>
-            <div className="eyebrow">Step 2 · Your profile</div>
+            <div className="eyebrow">Step 3 · Your first service</div>
             <h1 className="text-[clamp(30px,4vw,42px)] font-black leading-[1.05] tracking-[-0.025em]">
-              Introduce yourself{" "}
-              <span className="font-serif italic font-normal text-grad">like a pro.</span>
+              What will clients{" "}
+              <span className="font-serif italic font-normal text-grad">book you for?</span>
             </h1>
             <p className="mt-3 text-[clamp(15.5px,1.6vw,17px)] font-medium text-muted">
-              Everything you type appears on your real page, live on the right. Five fields are enough to go
-              live — you can polish the rest anytime.
+              One service is enough to go live. The card on the right is the real one from your
+              public page — exactly what clients will see.
             </p>
           </div>
 
           <div className="h-anim" style={{ animationDelay: "0.15s" }}>
-            <ProfileForm />
+            <ServiceForm initial={service} handle={profile.handle || "you"} />
           </div>
         </div>
       </main>

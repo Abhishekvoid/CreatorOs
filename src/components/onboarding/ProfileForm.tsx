@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AvatarField from "./AvatarField";
+import Field from "./Field";
 import PhonePreview from "./PhonePreview";
+import PreviewPane from "./PreviewPane";
 import { SOCIAL_ICONS } from "../profile/ProfileHeader";
 import {
   type CreatorDraft,
@@ -17,42 +19,6 @@ import {
 import { getProfileDraft, saveProfileDraft, uploadAvatar } from "@/lib/actions/profile";
 
 /* ---------------- small building blocks ---------------- */
-
-function Field({
-  id,
-  label,
-  required = false,
-  helper,
-  error,
-  counter,
-  children,
-}: {
-  id: string;
-  label: string;
-  required?: boolean;
-  helper?: string;
-  error?: string | null;
-  counter?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div id={`field-${id}`}>
-      <div className="mb-2 flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-[13.5px] font-semibold tracking-tight">
-          {label} {required && <span className="text-terra">*</span>}
-        </label>
-        {counter}
-      </div>
-      {/* shake fires when the class is first applied; never remount (focus) */}
-      <div className={error ? "shake" : undefined}>{children}</div>
-      {error ? (
-        <p className="mt-1.5 text-[12px] font-semibold text-terra-deep">{error}</p>
-      ) : (
-        helper && <p className="mt-1.5 text-[12px] font-medium text-muted">{helper}</p>
-      )}
-    </div>
-  );
-}
 
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
@@ -188,7 +154,6 @@ export default function ProfileForm() {
   const [saveState, setSaveState] = useState<"idle" | "dirty" | "saved">("idle");
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
 
   /* rehydrate exactly as the creator left it — from their profiles row */
   useEffect(() => {
@@ -241,7 +206,7 @@ export default function ProfileForm() {
     // itself was claimed in step 1 and is never written from here
     const res = await saveProfileDraft(draft, { complete: true });
     if (!res.success) return; // stay put; the draft autosave will retry
-    router.push("/onboarding/services");
+    router.push("/onboarding/service");
   }
 
   const bioLen = draft.bio.length;
@@ -411,36 +376,10 @@ export default function ProfileForm() {
         </div>
       </div>
 
-      {/* ---------------- right: live preview (desktop) ---------------- */}
-      <div className="sticky top-10 max-lg:hidden">
+      {/* ---------------- right: live preview ---------------- */}
+      <PreviewPane>
         <PhonePreview draft={draft} />
-      </div>
-
-      {/* ---------------- mobile: floating preview button + bottom sheet ---------------- */}
-      <button
-        type="button"
-        onClick={() => setSheetOpen(true)}
-        className="btn btn-primary fixed bottom-5 left-1/2 z-90 -translate-x-1/2 !px-6 !py-3 !text-[14px] lg:hidden"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
-          <path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
-          <circle cx="12" cy="12" r="2.5" />
-        </svg>
-        Preview
-      </button>
-
-      {sheetOpen && (
-        <div className="fixed inset-0 z-120 lg:hidden">
-          <button aria-label="Close preview" className="absolute inset-0 cursor-default bg-ink/45 backdrop-blur-[2px]" onClick={() => setSheetOpen(false)} />
-          <div className="pane-in absolute inset-x-0 bottom-0 max-h-[88dvh] overflow-y-auto rounded-t-[28px] border-t border-line bg-cream px-4 pb-8 pt-3">
-            <div className="mx-auto mb-4 h-1.5 w-11 rounded-full bg-line-2" />
-            <PhonePreview draft={draft} />
-            <button type="button" onClick={() => setSheetOpen(false)} className="btn btn-ghost mx-auto mt-5 flex !px-6 !py-2.5 !text-[13.5px]">
-              Back to editing
-            </button>
-          </div>
-        </div>
-      )}
+      </PreviewPane>
     </div>
   );
 }

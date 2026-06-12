@@ -127,11 +127,15 @@ export default function ProfileHeader({
   coldStart = false,
   stacked = false,
   compactTop = false,
+  serviceSlot,
 }: {
   creator?: ProfileHeaderData;
   coldStart?: boolean;
   stacked?: boolean;
   compactTop?: boolean;
+  /** cold start only: the creator's real service card once one exists,
+      rendered where the "first service" placeholder otherwise sits */
+  serviceSlot?: React.ReactNode;
 } = {}) {
   const c = creator ?? MEERA_DATA;
   const initial = (c.name.trim()[0] || "Y").toUpperCase();
@@ -304,7 +308,7 @@ export default function ProfileHeader({
           />
           {coldStart ? (
             <div className="h-anim relative" style={{ animationDelay: "0.4s" }}>
-              <FirstServiceCard />
+              {serviceSlot ?? <FirstServiceCard />}
             </div>
           ) : (
             <>

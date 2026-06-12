@@ -31,7 +31,7 @@ export function sanitizeHandle(raw: string): string {
 export const ONBOARDING_STEPS = [
   { key: "handle", route: "/onboarding/handle" },
   { key: "profile", route: "/onboarding/profile" },
-  { key: "services", route: "/onboarding/services" },
+  { key: "service", route: "/onboarding/service" },
   { key: "availability", route: "/onboarding/availability" },
   { key: "payments", route: "/onboarding/payments" },
 ] as const;
