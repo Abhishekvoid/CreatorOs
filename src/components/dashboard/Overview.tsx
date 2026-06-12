@@ -13,8 +13,9 @@ export function HeroCard() {
             Everything happening across bookings, payments and clients — in one calm place.
           </p>
         </div>
+        {/* demoted from saffron — the screen's one saffron action is "Continue setup" */}
         <div className="flex flex-wrap gap-2.5">
-          <a href="/meera" className="btn btn-grad !px-5 !py-2.5 !text-[13.5px]">
+          <a href="/meera" className="btn !bg-cream !px-5 !py-2.5 !text-[13.5px] !text-ink">
             View public profile
           </a>
           <a
@@ -28,24 +29,25 @@ export function HeroCard() {
 
       <div className="relative mt-7 flex flex-wrap gap-x-9 gap-y-4 border-t border-cream/10 pt-5">
         <div>
-          <div className="text-[11.5px] font-bold uppercase tracking-wider text-[#8E897D]">Revenue · this month</div>
+          <div className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#8E897D]">Revenue · this month</div>
           <div className="mt-1 flex items-baseline gap-2.5">
-            <span className="text-[32px] font-black leading-none tracking-tight">
+            {/* money landed is green — the one place color celebrates */}
+            <span className="text-[32px] font-black leading-none tracking-tight text-[#7BD3AC]">
               ₹<Counter to={24500} />
             </span>
-            <span className="rounded-full bg-green/20 px-2 py-0.5 text-[11.5px] font-extrabold text-[#7BD3AC]">
+            <span className="rounded-full bg-green/20 px-2 py-0.5 text-[11.5px] font-bold text-[#7BD3AC]">
               ↑ 18%
             </span>
           </div>
         </div>
         <div className="border-l border-cream/10 pl-9 max-sm:border-0 max-sm:pl-0">
-          <div className="text-[11.5px] font-bold uppercase tracking-wider text-[#8E897D]">Bookings</div>
+          <div className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#8E897D]">Bookings</div>
           <div className="mt-1 text-[32px] font-black leading-none tracking-tight">
             <Counter to={27} />
           </div>
         </div>
         <div className="border-l border-cream/10 pl-9 max-sm:border-0 max-sm:pl-0">
-          <div className="text-[11.5px] font-bold uppercase tracking-wider text-[#8E897D]">Active clients</div>
+          <div className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#8E897D]">Active clients</div>
           <div className="mt-1 text-[32px] font-black leading-none tracking-tight">
             <Counter to={14} />
           </div>
@@ -77,12 +79,12 @@ export function OnboardingCard({ steps = DEFAULT_STEPS }: { steps?: OnboardingIt
       <div className="relative">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-[18px] font-extrabold tracking-tight">Get your first booking</h2>
-            <p className="mt-0.5 text-[13px] font-semibold text-muted">
+            <h2 className="text-[18px] font-bold tracking-tight">Get your first booking</h2>
+            <p className="mt-0.5 text-[13px] font-medium text-muted">
               {steps.length - done} steps left · about {Math.max(steps.length - done, 1) * 2} minutes
             </p>
           </div>
-          <span className="rounded-full bg-paper px-3 py-1.5 text-[12.5px] font-extrabold shadow-soft">
+          <span className="rounded-full bg-paper px-3 py-1.5 text-[12.5px] font-bold">
             {done} / {steps.length} completed
           </span>
         </div>
@@ -97,7 +99,7 @@ export function OnboardingCard({ steps = DEFAULT_STEPS }: { steps?: OnboardingIt
             return (
               <div
                 key={s.label}
-                className={`flex items-center gap-2.5 rounded-2xl px-3.5 py-3 text-[13px] font-bold transition-colors duration-200 ${
+                className={`flex items-center gap-2.5 rounded-2xl px-3.5 py-3 text-[13px] font-semibold transition-colors duration-200 ${
                   s.done
                     ? "bg-paper/60 text-muted"
                     : isNext
@@ -106,7 +108,7 @@ export function OnboardingCard({ steps = DEFAULT_STEPS }: { steps?: OnboardingIt
                 }`}
               >
                 {s.done ? (
-                  <span className="grid size-5 shrink-0 place-items-center rounded-full bg-green text-white">
+                  <span className="grid size-5 shrink-0 place-items-center rounded-full bg-ink text-cream">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" className="size-3" aria-hidden="true">
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
@@ -116,7 +118,7 @@ export function OnboardingCard({ steps = DEFAULT_STEPS }: { steps?: OnboardingIt
                 )}
                 {s.label}
                 {isNext && (
-                  <span className="ml-auto rounded-full bg-[#FCE9E1] px-2 py-0.5 text-[10.5px] font-extrabold uppercase tracking-wide text-terra-deep">
+                  <span className="ml-auto rounded-full bg-[#FCE9E1] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-terra-deep">
                     Next
                   </span>
                 )}
@@ -126,10 +128,10 @@ export function OnboardingCard({ steps = DEFAULT_STEPS }: { steps?: OnboardingIt
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-4">
-          <a href="#" className="btn btn-primary !px-5.5 !py-2.5 !text-[13.5px]">
+          <a href="#" className="btn btn-grad !px-5.5 !py-2.5 !text-[13.5px]">
             Continue setup <span className="arr">→</span>
           </a>
-          <span className="text-[12.5px] font-semibold text-muted">
+          <span className="text-[12.5px] font-medium text-muted">
             Creators who finish setup get their first booking <b className="text-ink-2">3× faster</b>.
           </span>
         </div>
@@ -179,13 +181,13 @@ export function StatsGrid() {
           className="rounded-[24px] border border-line bg-paper p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-soft"
         >
           <div className="flex items-start justify-between gap-3">
-            <div className="text-[12px] font-bold uppercase tracking-wider text-faint">{s.label}</div>
+            <div className="text-[12px] font-semibold uppercase tracking-[0.08em] text-faint">{s.label}</div>
             <svg viewBox="0 0 60 22" className="h-[22px] w-[60px] shrink-0 opacity-70" aria-hidden="true">
-              <path d={s.spark} fill="none" stroke="var(--color-terra)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              <path d={s.spark} fill="none" stroke="var(--color-line-2)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <div className="mt-1.5 text-[26px] font-black leading-none tracking-tight">{s.value}</div>
-          <div className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-[11.5px] font-extrabold ${s.up ? "bg-green-soft text-green-deep" : "bg-cream-2 text-muted"}`}>
+          <div className="mt-1.5 text-[26px] font-bold leading-none tracking-tight">{s.value}</div>
+          <div className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-[11.5px] font-semibold ${s.label === "Avg. booking value" && s.up ? "bg-green-soft text-green-deep" : "bg-cream-2 text-muted"}`}>
             {s.up ? "↑ " : ""}
             {s.trend}
           </div>

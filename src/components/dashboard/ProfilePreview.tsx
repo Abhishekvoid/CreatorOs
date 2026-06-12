@@ -58,8 +58,12 @@ export default function ProfilePreview({ completion = 85 }: { completion?: numbe
         <a href="/meera" className="btn btn-primary flex-1 !px-4 !py-2.5 !text-[13px]">
           View profile
         </a>
-        <button type="button" onClick={copy} className="btn btn-ghost flex-1 !px-4 !py-2.5 !text-[13px]">
-          {copied ? "Copied ✓" : "Copy link"}
+        <button
+          type="button"
+          onClick={copy}
+          className={`btn btn-ghost flex-1 !px-4 !py-2.5 !text-[13px] transition-colors duration-150 ${copied ? "!bg-cream-2" : ""}`}
+        >
+          {copied ? "Copied" : "Copy link"}
         </button>
       </div>
     </section>

@@ -94,7 +94,7 @@ export function SectionHead({
   return (
     <div className={`mb-[clamp(40px,6vw,64px)] ${center ? "flex flex-col items-center text-center" : ""}`}>
       <div className="eyebrow">{eyebrow}</div>
-      <h2 className="max-w-[680px] text-[clamp(30px,4.4vw,46px)] font-bold leading-[1.08] tracking-[-0.025em]">
+      <h2 className="max-w-[680px] text-[clamp(30px,4.4vw,46px)] font-bold leading-[1.1] tracking-[-0.025em]">
         {title}
       </h2>
       {sub && (

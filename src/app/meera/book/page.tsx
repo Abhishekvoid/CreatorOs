@@ -47,7 +47,7 @@ export default function BookingPage() {
     <>
       <DemoBanner />
       <CheckoutNav />
-      <main className="pb-24 lg:pb-0">
+      <main data-register="product" className="pb-24 lg:pb-0">
         <div className="relative overflow-hidden">
           {/* ambient wash, same family as the profile header */}
           <div

@@ -18,7 +18,7 @@ export default async function PaymentPage({
     <>
       <DemoBanner />
       <CheckoutNav backHref="/meera/book" backLabel="Back to booking" />
-      <main className="relative min-h-screen overflow-hidden">
+      <main data-register="product" className="relative min-h-screen overflow-hidden">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -28,7 +28,7 @@ export default async function PaymentPage({
         />
         <div className="relative mx-auto max-w-[1000px] px-6 pb-[clamp(56px,8vw,96px)] pt-[140px]">
           <div className="h-anim mb-7" style={{ animationDelay: "0.05s" }}>
-            <div className="text-[12.5px] font-bold uppercase tracking-[0.14em] text-terra-deep">Step 2 of 2</div>
+            <div className="text-[12.5px] font-semibold uppercase tracking-[0.08em] text-terra-deep">Step 2 of 2</div>
             <h1 className="mt-1.5 text-[clamp(24px,3.2vw,32px)] font-black tracking-[-0.02em]">
               Complete your <span className="font-serif italic font-normal text-grad">payment.</span>
             </h1>

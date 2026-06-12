@@ -16,6 +16,7 @@ export default async function BookingSuccessPage({
 }) {
   const { d, t, id } = await searchParams;
   return (
+    // the one product screen with settle-in choreography: check draws, content follows
     <main className="relative min-h-screen overflow-hidden">
       <DemoBanner />
       <div

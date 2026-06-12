@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import { ARJUN_AVATAR, MEERA_AVATAR, PRIYA_AVATAR, ROHIT_AVATAR } from "../persona";
 import { VerifiedBadge } from "../ui";
@@ -52,10 +53,10 @@ function StepHead({ n, title, hint }: { n: number; title: string; hint?: React.R
   return (
     <div className="mb-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
       <div className="flex items-center gap-3">
-        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-ink text-[12.5px] font-extrabold text-cream">
+        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-ink text-[12.5px] font-bold text-cream">
           {n}
         </span>
-        <h2 className="text-[18px] font-extrabold tracking-tight">{title}</h2>
+        <h2 className="text-[18px] font-bold tracking-tight">{title}</h2>
       </div>
       {hint}
     </div>
@@ -78,7 +79,7 @@ function Field({
   }) {
   return (
     <label className="block">
-      <span className="mb-1.5 flex items-baseline gap-2 text-[13px] font-bold text-ink-2">
+      <span className="mb-1.5 flex items-baseline gap-2 text-[13px] font-semibold text-ink-2">
         {label}
         {optional && <span className="text-[11.5px] font-semibold text-faint">optional</span>}
       </span>
@@ -109,7 +110,7 @@ function Calendar({
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <div className="text-[15.5px] font-extrabold tracking-tight">
+        <div className="text-[15.5px] font-bold tracking-tight">
           {view.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
         </div>
         <div className="flex gap-1.5">
@@ -140,7 +141,7 @@ function Calendar({
 
       <div className="grid grid-cols-7 gap-1">
         {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((d) => (
-          <div key={d} className="pb-1 text-center text-[11px] font-extrabold uppercase tracking-wider text-faint">
+          <div key={d} className="pb-1 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-faint">
             {d}
           </div>
         ))}
@@ -156,11 +157,11 @@ function Calendar({
               disabled={!open}
               onClick={() => onSelect(d)}
               aria-pressed={sel}
-              className={`relative grid aspect-square place-items-center rounded-[12px] text-[13.5px] font-bold transition-all duration-300 ease-spring ${
+              className={`relative grid aspect-square place-items-center rounded-[12px] text-[13.5px] font-semibold transition-all duration-150 ease-soft ${
                 sel
-                  ? "scale-105 bg-ink text-cream shadow-[0_6px_16px_-4px_rgba(25,23,18,.45)]"
+                  ? "bg-ink text-cream"
                   : open
-                    ? "cursor-pointer text-ink hover:-translate-y-0.5 hover:bg-cream-2"
+                    ? "cursor-pointer text-ink hover:bg-cream-2"
                     : "cursor-default text-faint/60"
               } ${isToday && !sel ? "outline outline-[1.5px] outline-offset-[-1.5px] outline-terra" : ""}`}
             >
@@ -174,6 +175,20 @@ function Calendar({
       </div>
     </div>
   );
+}
+
+/* Step changes use the View Transitions API so the summary card (named
+   booking-summary) morphs persistently while step content crossfades.
+   Feature-detected; without support the update applies instantly and the
+   step content's own 200ms pop-in is the crossfade fallback. */
+function withStepTransition(update: () => void) {
+  if (typeof document !== "undefined" && "startViewTransition" in document) {
+    (document as Document & { startViewTransition: (cb: () => void) => void }).startViewTransition(() =>
+      flushSync(update),
+    );
+  } else {
+    update();
+  }
 }
 
 /* ---------------- main flow ---------------- */
@@ -194,8 +209,14 @@ export default function BookingFlow() {
   const isTodaySelected = date !== null && today !== null && sameDay(date, today);
 
   function pickDate(d: Date) {
-    setDate(d);
-    setSlot(null);
+    withStepTransition(() => {
+      setDate(d);
+      setSlot(null);
+    });
+  }
+
+  function pickSlot(s: string) {
+    withStepTransition(() => setSlot(s));
   }
 
   function continueToPayment() {
@@ -243,14 +264,14 @@ export default function BookingFlow() {
           <section className="rounded-[26px] border border-line bg-paper p-6.5 shadow-soft max-sm:p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex min-w-0 items-start gap-4">
-                <div className="grid size-13 shrink-0 place-items-center rounded-2xl bg-[#FCE9E1] text-[24px]">
+                <div className="grid size-13 shrink-0 place-items-center rounded-2xl bg-cream-2 text-[24px]">
                   <span aria-hidden="true">🎯</span>
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2.5">
-                    <h2 className="text-[20px] font-extrabold tracking-tight">1:1 Career Strategy Call</h2>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-green-soft px-2.5 py-1 text-[11px] font-extrabold text-green-deep">
-                      <span className="size-1.5 rounded-full bg-current" /> Open this week
+                    <h2 className="text-[20px] font-bold tracking-tight">1:1 Career Strategy Call</h2>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-cream-2 px-2.5 py-1 text-[11px] font-semibold text-ink-2">
+                      Open this week
                     </span>
                   </div>
                   <p className="mt-1.5 max-w-[440px] text-[13.5px] font-medium leading-relaxed text-muted">
@@ -259,7 +280,7 @@ export default function BookingFlow() {
                   </p>
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {["45 min", "Google Meet", "Recording included", "English · Hindi"].map((m) => (
-                      <span key={m} className="rounded-full border border-line bg-cream px-2.5 py-1 text-[12px] font-bold text-ink-2">
+                      <span key={m} className="rounded-full border border-line bg-cream px-2.5 py-1 text-[12px] font-semibold text-ink-2">
                         {m}
                       </span>
                     ))}
@@ -278,7 +299,7 @@ export default function BookingFlow() {
                 ["💬", "WhatsApp reminders"],
                 ["🔁", "Free rescheduling"],
               ].map(([icon, text]) => (
-                <div key={text} className="flex items-center gap-2 text-[12.5px] font-bold text-ink-2">
+                <div key={text} className="flex items-center gap-2 text-[12.5px] font-medium text-ink-2">
                   <span aria-hidden="true">{icon}</span> {text}
                 </div>
               ))}
@@ -329,7 +350,7 @@ export default function BookingFlow() {
                   if (free.length === 0) return null;
                   return (
                     <div key={g.label}>
-                      <div className="mb-2 text-[11.5px] font-extrabold uppercase tracking-wider text-faint">
+                      <div className="mb-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-faint">
                         {g.label}
                       </div>
                       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -341,14 +362,14 @@ export default function BookingFlow() {
                               key={s}
                               type="button"
                               disabled={isTaken}
-                              onClick={() => setSlot(s)}
+                              onClick={() => pickSlot(s)}
                               aria-pressed={sel}
-                              className={`rounded-[14px] border-[1.5px] px-3 py-3 text-[13.5px] font-bold transition-all duration-300 ease-spring ${
+                              className={`rounded-[14px] border-[1.5px] px-3 py-3 text-[13.5px] font-semibold transition-all duration-150 ease-soft ${
                                 sel
-                                  ? "scale-[1.04] border-ink bg-ink text-cream shadow-[0_8px_18px_-6px_rgba(25,23,18,.5)]"
+                                  ? "border-ink bg-ink text-cream"
                                   : isTaken
                                     ? "cursor-default border-line text-faint/60 line-through"
-                                    : "cursor-pointer border-line bg-paper text-ink-2 hover:-translate-y-0.5 hover:border-terra hover:text-terra-deep hover:shadow-soft"
+                                    : "cursor-pointer border-line bg-paper text-ink-2 hover:border-terra hover:text-terra-deep"
                               }`}
                             >
                               {s}
@@ -411,7 +432,7 @@ export default function BookingFlow() {
             />
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
-                <span className="mb-1.5 block text-[13px] font-bold text-ink-2">Current salary range</span>
+                <span className="mb-1.5 block text-[13px] font-semibold text-ink-2">Current salary range</span>
                 <select className="field cursor-pointer" name="salary" defaultValue="">
                   <option value="" disabled>
                     Select a range
@@ -425,7 +446,7 @@ export default function BookingFlow() {
               <Field label="Resume link" name="resume" type="url" placeholder="Google Drive / Dropbox link" hint="Set sharing to “anyone with the link”" />
               <Field label="Portfolio link" name="portfolio" type="url" placeholder="yoursite.com" optional />
               <div className="sm:col-span-2">
-                <span className="mb-2 block text-[13px] font-bold text-ink-2">Biggest challenge right now</span>
+                <span className="mb-2 block text-[13px] font-semibold text-ink-2">Biggest challenge right now</span>
                 <div className="flex flex-wrap gap-2">
                   {["Getting interview calls", "Resume shortlists", "Salary negotiation", "Career switch", "Getting promoted"].map((c) => {
                     const sel = challenge === c;
@@ -435,10 +456,10 @@ export default function BookingFlow() {
                         type="button"
                         onClick={() => setChallenge(sel ? null : c)}
                         aria-pressed={sel}
-                        className={`rounded-full border-[1.5px] px-3.5 py-2 text-[13px] font-bold transition-all duration-300 ease-spring active:scale-95 ${
+                        className={`hit-44 rounded-full border-[1.5px] px-3.5 py-2 text-[13px] font-semibold transition-all duration-150 ease-soft active:scale-[0.97] ${
                           sel
-                            ? "scale-[1.03] border-ink bg-ink text-cream shadow-soft"
-                            : "border-line bg-paper text-ink-2 hover:-translate-y-0.5 hover:border-ink"
+                            ? "border-ink bg-ink text-cream"
+                            : "border-line bg-paper text-ink-2 hover:border-ink"
                         }`}
                       >
                         {c}
@@ -455,7 +476,7 @@ export default function BookingFlow() {
 
           {/* booking policies */}
           <section className="rounded-[26px] border border-line bg-paper p-6.5 max-sm:p-5">
-            <h2 className="mb-4.5 text-[18px] font-extrabold tracking-tight">Booking policies</h2>
+            <h2 className="mb-4.5 text-[18px] font-bold tracking-tight">Booking policies</h2>
             <div className="grid gap-x-6 gap-y-3.5 sm:grid-cols-2">
               {[
                 ["Secure payment", "Processed by Razorpay over 256-bit SSL — card details never touch our servers."],
@@ -466,13 +487,13 @@ export default function BookingFlow() {
                 ["Fair refunds", "Unhappy after your first session? Full refund within 24 hours — no forms."],
               ].map(([title, text]) => (
                 <div key={title} className="flex items-start gap-3">
-                  <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-green-soft text-green">
+                  <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-cream-2 text-ink-2">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" className="size-3.5" aria-hidden="true">
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
                   </span>
                   <div>
-                    <div className="text-[14px] font-extrabold tracking-tight">{title}</div>
+                    <div className="text-[14px] font-bold tracking-tight">{title}</div>
                     <div className="mt-0.5 text-[12.5px] font-medium leading-relaxed text-muted">{text}</div>
                   </div>
                 </div>
@@ -483,7 +504,10 @@ export default function BookingFlow() {
 
         {/* ================= right: sticky order summary ================= */}
         <aside className="flex flex-col gap-4 lg:sticky lg:top-24">
-          <div className="overflow-hidden rounded-[26px] border border-line bg-paper shadow-card">
+          <div
+            className="overflow-hidden rounded-[26px] border border-line bg-paper shadow-soft"
+            style={{ viewTransitionName: "booking-summary" }}
+          >
             <div className="flex items-center gap-3 border-b border-line bg-cream px-6 py-4">
               <img
                 src={MEERA_AVATAR}
@@ -506,10 +530,10 @@ export default function BookingFlow() {
 
             <div className="p-6">
               <div className="flex items-center gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#FCE9E1] text-[17px]" aria-hidden="true">
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-cream-2 text-[17px]" aria-hidden="true">
                   🎯
                 </span>
-                <div className="text-[15px] font-extrabold tracking-tight">1:1 Career Strategy Call</div>
+                <div className="text-[15px] font-bold tracking-tight">1:1 Career Strategy Call</div>
               </div>
 
               <dl className="mt-4 flex flex-col gap-2.5 border-t border-line pt-4 text-[13.5px]">
@@ -521,7 +545,7 @@ export default function BookingFlow() {
                   <div key={k as string} className="flex items-baseline justify-between gap-4">
                     <dt className="font-semibold text-muted">{k}</dt>
                     {v ? (
-                      <dd key={v as string} className="pop-in font-extrabold tracking-tight">
+                      <dd key={v as string} className="pop-in font-semibold tracking-tight">
                         {v}
                       </dd>
                     ) : (
@@ -537,8 +561,8 @@ export default function BookingFlow() {
                   <dd className="font-bold">{inr(PRICE)}</dd>
                 </div>
                 <div className="mt-1 flex items-baseline justify-between border-t border-line pt-3.5">
-                  <dt className="text-[14.5px] font-extrabold">Total</dt>
-                  <dd className="text-[24px] font-black tracking-tight">{inr(TOTAL)}</dd>
+                  <dt className="text-[14.5px] font-bold">Total</dt>
+                  <dd className="text-[24px] font-bold tracking-tight">{inr(TOTAL)}</dd>
                 </div>
               </dl>
 
@@ -553,13 +577,13 @@ export default function BookingFlow() {
 
               <div className="mt-4 flex flex-wrap justify-center gap-1.5">
                 {["UPI", "Visa", "Mastercard", "RuPay", "Net Banking"].map((m) => (
-                  <span key={m} className="rounded-lg border border-line bg-cream px-2.5 py-1 text-[11px] font-extrabold tracking-tight text-ink-2">
+                  <span key={m} className="rounded-lg border border-line bg-cream px-2.5 py-1 text-[11px] font-semibold tracking-tight text-ink-2">
                     {m}
                   </span>
                 ))}
               </div>
               <div className="mt-3.5 flex items-center justify-center gap-1.5 text-[11.5px] font-bold text-muted">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" className="size-3.5 text-green" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" className="size-3.5 text-ink-2" aria-hidden="true">
                   <rect x="4" y="10" width="16" height="11" rx="2.5" />
                   <path d="M8 10V7a4 4 0 0 1 8 0v3" />
                 </svg>
@@ -570,7 +594,7 @@ export default function BookingFlow() {
 
           {/* recent activity */}
           <div className="rounded-[26px] border border-line bg-paper p-5">
-            <div className="mb-3 flex items-center gap-2 text-[11.5px] font-extrabold uppercase tracking-wider text-faint">
+            <div className="mb-3 flex items-center gap-2 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-faint">
               <span className="size-[7px] rounded-full bg-green animate-pulse-dot" />
               Recent bookings
             </div>

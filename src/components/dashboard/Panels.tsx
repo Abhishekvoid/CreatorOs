@@ -49,7 +49,7 @@ export function UpcomingBookings() {
   return (
     <section className="rounded-[28px] border border-line bg-paper p-6.5 max-sm:p-5" aria-label="Upcoming sessions">
       <div className="flex items-center justify-between">
-        <h2 className="text-[16px] font-extrabold tracking-tight">Upcoming sessions</h2>
+        <h2 className="text-[16px] font-bold tracking-tight">Upcoming sessions</h2>
         <a href="#" className="text-[12.5px] font-bold text-muted transition-colors duration-200 hover:text-ink">
           View all →
         </a>
@@ -90,19 +90,20 @@ export function UpcomingBookings() {
 }
 
 /* ---------------- quick actions ---------------- */
+/* one neutral tint — color is reserved for state, not decoration */
 const ACTIONS = [
-  { label: "Create service", tint: "bg-[#FCE9E1] text-terra-deep", d: "M12 5v14M5 12h14" },
-  { label: "Add product", tint: "bg-[#FDF3DF] text-[#9A6A14]", d: "M21 8l-9-5-9 5v8l9 5 9-5V8z|M3 8l9 5 9-5" },
-  { label: "Share profile", tint: "bg-green-soft text-green-deep", d: "M18 8a3 3 0 1 0-2.9-3.8L8.6 7.6a3 3 0 1 0 0 4.8l6.5 3.4A3 3 0 1 0 18 14l-6.5-3.4a3 3 0 0 0 0-1.2L18 8z" },
+  { label: "Create service", tint: "bg-cream-2 text-ink-2", d: "M12 5v14M5 12h14" },
+  { label: "Add product", tint: "bg-cream-2 text-ink-2", d: "M21 8l-9-5-9 5v8l9 5 9-5V8z|M3 8l9 5 9-5" },
+  { label: "Share profile", tint: "bg-cream-2 text-ink-2", d: "M18 8a3 3 0 1 0-2.9-3.8L8.6 7.6a3 3 0 1 0 0 4.8l6.5 3.4A3 3 0 1 0 18 14l-6.5-3.4a3 3 0 0 0 0-1.2L18 8z" },
   { label: "Block time", tint: "bg-cream-2 text-ink-2", d: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z|M5.6 5.6l12.8 12.8" },
-  { label: "Export clients", tint: "bg-[#FCE9E1] text-terra-deep", d: "M12 3v12|M7 10l5 5 5-5|M4 21h16" },
-  { label: "Create coupon", tint: "bg-[#FDF3DF] text-[#9A6A14]", d: "M3.5 9V5.5h17V9a2 2 0 0 0 0 6v3.5h-17V15a2 2 0 0 0 0-6z|M13 7.5v1.5M13 11.2v1.6M13 15v1.5" },
+  { label: "Export clients", tint: "bg-cream-2 text-ink-2", d: "M12 3v12|M7 10l5 5 5-5|M4 21h16" },
+  { label: "Create coupon", tint: "bg-cream-2 text-ink-2", d: "M3.5 9V5.5h17V9a2 2 0 0 0 0 6v3.5h-17V15a2 2 0 0 0 0-6z|M13 7.5v1.5M13 11.2v1.6M13 15v1.5" },
 ];
 
 export function QuickActions() {
   return (
     <section className="rounded-[28px] border border-line bg-paper p-6.5 max-sm:p-5" aria-label="Quick actions">
-      <h2 className="text-[16px] font-extrabold tracking-tight">Quick actions</h2>
+      <h2 className="text-[16px] font-bold tracking-tight">Quick actions</h2>
       <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-2">
         {ACTIONS.map((a) => (
           <button
@@ -131,7 +132,7 @@ export function ProfilePerformance() {
   return (
     <section className="rounded-[28px] border border-line bg-paper p-6.5 max-sm:p-5" aria-label="Profile performance">
       <div className="flex items-baseline justify-between">
-        <h2 className="text-[16px] font-extrabold tracking-tight">Profile performance</h2>
+        <h2 className="text-[16px] font-bold tracking-tight">Profile performance</h2>
         <span className="text-[11.5px] font-bold text-faint">Last 30 days</span>
       </div>
       <div className="mt-4.5 flex flex-col gap-4">
@@ -145,13 +146,13 @@ export function ProfilePerformance() {
               </span>
             </div>
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-cream-2">
-              <div className="h-full rounded-full bg-grad" style={{ width: `${Math.max(f.pct, 4)}%` }} />
+              <div className="h-full rounded-full bg-ink-2" style={{ width: `${Math.max(f.pct, 4)}%` }} />
             </div>
           </div>
         ))}
       </div>
       <div className="mt-5 border-t border-line pt-4">
-        <div className="text-[11.5px] font-bold uppercase tracking-wider text-faint">Top traffic source</div>
+        <div className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-faint">Top traffic source</div>
         <div className="mt-2 flex items-center gap-2.5">
           <span className="grid size-8 place-items-center rounded-xl bg-[#FCE9E1] text-terra-deep">
             <PanelIcon d="M2.5 2.5h19v19h-19z M12 16.2a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4z M17.6 6.4h.01" className="size-4" />
@@ -187,7 +188,7 @@ export function PaymentsTable() {
   return (
     <section className="rounded-[28px] border border-line bg-paper p-6.5 max-sm:p-5" aria-label="Recent payments">
       <div className="flex items-center justify-between">
-        <h2 className="text-[16px] font-extrabold tracking-tight">Recent payments</h2>
+        <h2 className="text-[16px] font-bold tracking-tight">Recent payments</h2>
         <a href="#" className="text-[12.5px] font-bold text-muted transition-colors duration-200 hover:text-ink">
           View all →
         </a>
@@ -195,12 +196,12 @@ export function PaymentsTable() {
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[520px] border-collapse text-left">
           <thead>
-            <tr className="border-b border-line text-[11px] font-extrabold uppercase tracking-wider text-faint">
-              <th className="py-2.5 pr-3 font-extrabold">Client</th>
-              <th className="py-2.5 pr-3 font-extrabold">Service</th>
-              <th className="py-2.5 pr-3 font-extrabold">Amount</th>
-              <th className="py-2.5 pr-3 font-extrabold">Date</th>
-              <th className="py-2.5 text-right font-extrabold">Status</th>
+            <tr className="border-b border-line text-[11px] font-semibold uppercase tracking-[0.08em] text-faint">
+              <th className="py-2.5 pr-3 font-semibold">Client</th>
+              <th className="py-2.5 pr-3 font-semibold">Service</th>
+              <th className="py-2.5 pr-3 font-semibold">Amount</th>
+              <th className="py-2.5 pr-3 font-semibold">Date</th>
+              <th className="py-2.5 text-right font-semibold">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -209,14 +210,14 @@ export function PaymentsTable() {
                 <td className="py-3 pr-3">
                   <div className="flex items-center gap-2.5">
                     <img src={p.img} alt="" className="size-7 rounded-full object-cover" />
-                    <span className="whitespace-nowrap text-[13.5px] font-extrabold tracking-tight">{p.name}</span>
+                    <span className="whitespace-nowrap text-[13.5px] font-bold tracking-tight">{p.name}</span>
                   </div>
                 </td>
-                <td className="whitespace-nowrap py-3 pr-3 text-[13px] font-semibold text-muted">{p.service}</td>
-                <td className="whitespace-nowrap py-3 pr-3 text-[13.5px] font-extrabold">{p.amount}</td>
-                <td className="whitespace-nowrap py-3 pr-3 text-[13px] font-semibold text-muted">{p.date}</td>
+                <td className="whitespace-nowrap py-3 pr-3 text-[13px] font-medium text-muted">{p.service}</td>
+                <td className={`whitespace-nowrap py-3 pr-3 text-[13.5px] font-bold ${p.status === "Paid" ? "text-green-deep" : ""}`}>{p.amount}</td>
+                <td className="whitespace-nowrap py-3 pr-3 text-[13px] font-medium text-muted">{p.date}</td>
                 <td className="py-3 text-right">
-                  <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-extrabold ${p.tone}`}>{p.status}</span>
+                  <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ${p.tone}`}>{p.status}</span>
                 </td>
               </tr>
             ))}
@@ -228,24 +229,25 @@ export function PaymentsTable() {
 }
 
 /* ---------------- activity feed ---------------- */
+/* green marks money landed — and only money */
 const ACTIVITY = [
-  { dot: "bg-green", text: <>Payment received — <b className="font-extrabold">₹1,499</b> from Rohit Sharma</>, time: "2 min ago" },
-  { dot: "bg-terra", text: <>New booking — Priya Nair, <b className="font-extrabold">Resume Review</b></>, time: "1 hr ago" },
-  { dot: "bg-amber", text: <>WhatsApp reminder sent to Arjun Mehta</>, time: "3 hrs ago" },
-  { dot: "bg-amber", text: <>Kavya Reddy left a <b className="font-extrabold">★★★★★ review</b></>, time: "Yesterday" },
-  { dot: "bg-green", text: <>Calendar invite delivered for Friday&rsquo;s session</>, time: "Yesterday" },
+  { dot: "bg-green", text: <>Payment received — <b className="font-semibold text-green-deep">₹1,499</b> from Rohit Sharma</>, time: "2 min ago" },
+  { dot: "bg-line-2", text: <>New booking — Priya Nair, <b className="font-semibold">Resume Review</b></>, time: "1 hr ago" },
+  { dot: "bg-line-2", text: <>WhatsApp reminder sent to Arjun Mehta</>, time: "3 hrs ago" },
+  { dot: "bg-line-2", text: <>Kavya Reddy left a <b className="font-semibold">★★★★★ review</b></>, time: "Yesterday" },
+  { dot: "bg-line-2", text: <>Calendar invite delivered for Friday&rsquo;s session</>, time: "Yesterday" },
 ];
 
 export function ActivityFeed() {
   return (
     <section className="rounded-[28px] border border-line bg-paper p-6.5 max-sm:p-5" aria-label="Recent activity">
-      <h2 className="text-[16px] font-extrabold tracking-tight">Activity</h2>
+      <h2 className="text-[16px] font-bold tracking-tight">Activity</h2>
       <ul className="relative mt-4 flex flex-col gap-4.5 before:absolute before:bottom-2 before:left-[5px] before:top-2 before:w-px before:bg-line">
         {ACTIVITY.map((a, i) => (
-          <li key={i} className="relative pl-6">
+          <li key={i} className="feed-in relative pl-6" style={{ animationDelay: `${i * 40}ms` }}>
             <span className={`absolute left-0 top-1 size-[11px] rounded-full border-2 border-paper ${a.dot}`} />
-            <div className="text-[13px] font-semibold leading-snug text-ink-2">{a.text}</div>
-            <div className="mt-0.5 text-[11px] font-bold text-faint">{a.time}</div>
+            <div className="text-[13px] font-medium leading-snug text-ink-2">{a.text}</div>
+            <div className="mt-0.5 text-[11px] font-semibold text-faint">{a.time}</div>
           </li>
         ))}
       </ul>

@@ -26,9 +26,13 @@ export default function ShareButton({ className = "btn btn-ghost btn-lg" }: { cl
   }
 
   return (
-    <button type="button" onClick={share} className={className}>
+    <button
+      type="button"
+      onClick={share}
+      className={`${className} transition-colors duration-150 ${copied ? "!bg-cream-2" : ""}`}
+    >
       {copied ? (
-        "Link copied ✓"
+        "Copied"
       ) : (
         <>
           <svg
