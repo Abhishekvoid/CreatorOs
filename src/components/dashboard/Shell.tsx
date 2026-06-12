@@ -1,7 +1,9 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ABHISHEK_AVATAR } from "../persona";
 import { LogoMark } from "../ui";
 
 /* ---------------- icons (single stroke vocabulary) ---------------- */
@@ -120,12 +122,12 @@ function SidebarContent() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center px-5 pb-5 pt-6">
-        <a href="/" className="group/logo flex items-center gap-2.5 text-[17px] font-black tracking-tight">
+        <Link href="/" className="group/logo flex items-center gap-2.5 text-[17px] font-black tracking-tight">
           <LogoMark className="size-[30px] rounded-[10px]" />
           <span>
             Creator<span className="font-medium text-muted">OS</span>
           </span>
-        </a>
+        </Link>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3">
@@ -187,6 +189,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const [userMenu, setUserMenu] = useState(false);
   const [now, setNow] = useState<Date | null>(null);
 
+  // hydration gate: the greeting is time-dependent, so SSR and client must both render the null state first
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setNow(new Date()), []);
 
   const hour = now?.getHours() ?? 12;
@@ -265,7 +269,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <div className="relative shrink-0">
             <button onClick={() => setUserMenu(!userMenu)} aria-label="Account menu" className="block">
               <img
-                src="https://randomuser.me/api/portraits/men/32.jpg"
+                src={ABHISHEK_AVATAR}
                 alt="Abhishek"
                 className="size-9 rounded-full border-2 border-white object-cover shadow-soft transition-transform duration-200 hover:scale-105"
               />

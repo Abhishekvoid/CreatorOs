@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { ARJUN_AVATAR, KAVYA_AVATAR, PRIYA_AVATAR } from "../persona";
 import Reveal from "../Reveal";
 import { SectionHead } from "../ui";
 
@@ -11,7 +12,7 @@ const REVIEWS = [
       </>
     ),
     stat: "2 interview calls in 7 days",
-    img: "https://randomuser.me/api/portraits/women/33.jpg",
+    img: PRIYA_AVATAR,
     name: "Priya Nair",
     role: "Product Manager · Bengaluru",
     dark: false,
@@ -25,7 +26,7 @@ const REVIEWS = [
       </>
     ),
     stat: "↑ 42% salary at Microsoft",
-    img: "https://randomuser.me/api/portraits/men/52.jpg",
+    img: ARJUN_AVATAR,
     name: "Arjun Mehta",
     role: "Senior Software Engineer · Hyderabad",
     dark: true,
@@ -39,7 +40,7 @@ const REVIEWS = [
       </>
     ),
     stat: "3 shortlists in a month",
-    img: "https://randomuser.me/api/portraits/women/26.jpg",
+    img: KAVYA_AVATAR,
     name: "Kavya Reddy",
     role: "Marketing Lead · Pune",
     dark: false,

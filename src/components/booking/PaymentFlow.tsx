@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { MEERA_AVATAR } from "../persona";
 import { VerifiedBadge } from "../ui";
 
 const PRICE = 1499;
@@ -73,7 +74,7 @@ export default function PaymentFlow({ d, t }: { d?: string; t?: string }) {
       <div className="overflow-hidden rounded-[26px] border border-line bg-paper shadow-card">
         <div className="flex items-center gap-3 border-b border-line bg-cream px-6 py-4">
           <img
-            src="https://randomuser.me/api/portraits/women/68.jpg"
+            src={MEERA_AVATAR}
             alt="Meera Shah"
             className="size-11 rounded-full border-2 border-white object-cover outline outline-[1.5px] outline-offset-1 outline-terra"
           />

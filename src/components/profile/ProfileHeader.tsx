@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { MEERA_AVATAR, MEERA_CREDENTIAL } from "../persona";
 import SlotRow from "../SlotRow";
 import { VerifiedBadge } from "../ui";
 import ShareButton from "./ShareButton";
@@ -49,7 +50,7 @@ const SOCIALS = [
 
 export default function ProfileHeader() {
   return (
-    <section className="relative overflow-hidden pb-[clamp(48px,7vw,84px)] pt-[136px] max-md:pt-28">
+    <section className="relative overflow-hidden pb-[clamp(48px,7vw,84px)] pt-[172px] max-md:pt-[148px]">
       {/* ambient gradient washes, same recipe as the landing hero */}
       <div
         className="pointer-events-none absolute inset-0"
@@ -65,7 +66,7 @@ export default function ProfileHeader() {
           <div className="h-anim flex items-center gap-5 max-lg:flex-col max-lg:gap-4" style={{ animationDelay: "0.05s" }}>
             <div className="relative shrink-0">
               <img
-                src="https://randomuser.me/api/portraits/women/68.jpg"
+                src={MEERA_AVATAR}
                 alt="Meera Shah, career coach"
                 className="size-[108px] rounded-full border-4 border-white object-cover shadow-card outline outline-[3px] outline-offset-3 outline-terra"
               />
@@ -80,7 +81,7 @@ export default function ProfileHeader() {
                 Meera Shah <VerifiedBadge />
               </h1>
               <p className="mt-2 text-[16px] font-bold text-ink-2">
-                Career Coach <span className="mx-1 text-faint">·</span> ex-Head of Talent, Flipkart
+                Career Coach <span className="mx-1 text-faint">·</span> {MEERA_CREDENTIAL}
               </p>
               <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] font-semibold text-muted max-lg:justify-center">
                 <span className="inline-flex items-center gap-1.5">

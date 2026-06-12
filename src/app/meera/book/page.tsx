@@ -1,8 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
+import Link from "next/link";
 import BookingFlow from "@/components/booking/BookingFlow";
 import CheckoutNav from "@/components/booking/CheckoutNav";
+import DemoBanner from "@/components/DemoBanner";
 import Faq from "@/components/profile/Faq";
+import { MEERA_AVATAR } from "@/components/persona";
 import Reveal from "@/components/Reveal";
 import { LogoMark, VerifiedBadge } from "@/components/ui";
 
@@ -42,6 +45,7 @@ const BOOKING_FAQ = [
 export default function BookingPage() {
   return (
     <>
+      <DemoBanner />
       <CheckoutNav />
       <main className="pb-24 lg:pb-0">
         <div className="relative overflow-hidden">
@@ -54,11 +58,11 @@ export default function BookingPage() {
             }}
           />
 
-          <div className="relative mx-auto max-w-[1160px] px-6 pb-[clamp(56px,7vw,88px)] pt-[104px]">
+          <div className="relative mx-auto max-w-[1160px] px-6 pb-[clamp(56px,7vw,88px)] pt-[140px]">
             {/* creator context */}
             <div className="h-anim mb-7 flex flex-wrap items-center gap-x-5 gap-y-4" style={{ animationDelay: "0.05s" }}>
               <img
-                src="https://randomuser.me/api/portraits/women/68.jpg"
+                src={MEERA_AVATAR}
                 alt="Meera Shah, career coach"
                 className="size-[68px] rounded-full border-[3px] border-white object-cover shadow-card outline outline-2 outline-offset-2 outline-terra"
               />
@@ -108,10 +112,10 @@ export default function BookingPage() {
 
       <footer className="border-t border-line bg-paper py-6">
         <div className="mx-auto flex max-w-[1160px] flex-wrap items-center justify-between gap-3 px-6 max-md:justify-center">
-          <a href="/" className="group/logo flex items-center gap-2 text-[13px] font-bold text-muted transition-colors hover:text-ink">
+          <Link href="/" className="group/logo flex items-center gap-2 text-[13px] font-bold text-muted transition-colors hover:text-ink">
             <LogoMark className="size-[20px] rounded-[7px]" />
             Powered by CreatorOS
-          </a>
+          </Link>
           <p className="text-[12.5px] font-semibold text-faint">
             Payments secured by Razorpay · Your details are shared only with Meera
           </p>

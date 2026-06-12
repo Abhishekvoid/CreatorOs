@@ -1,14 +1,8 @@
 import Counter from "./Counter";
+import { ANANYA_AVATAR, MEERA_AVATAR, ROHIT_AVATAR } from "./persona";
 import { VerifiedBadge } from "./ui";
 
 import Link from "next/link";
-
-const AVATARS = [
-  "https://randomuser.me/api/portraits/women/65.jpg",
-  "https://randomuser.me/api/portraits/men/32.jpg",
-  "https://randomuser.me/api/portraits/women/44.jpg",
-  "https://randomuser.me/api/portraits/men/75.jpg",
-];
 
 function ServiceRow({
   icon,
@@ -88,25 +82,19 @@ export default function Hero() {
               See how it works
             </Link>
           </div>
-          <div className="h-anim flex items-center gap-3.5" style={{ animationDelay: "0.45s" }}>
-            <div className="flex">
-              {AVATARS.map((src, i) => (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  key={src}
-                  src={src}
-                  alt=""
-                  className={`relative size-[34px] rounded-full border-[2.5px] border-cream object-cover transition-transform duration-300 ease-spring hover:z-10 hover:-translate-y-1 hover:scale-110 ${
-                    i > 0 ? "-ml-2" : ""
-                  }`}
-                />
-              ))}
+          <div className="h-anim flex flex-col gap-3 max-lg:items-center" style={{ animationDelay: "0.45s" }}>
+            <div className="text-sm font-semibold text-muted">
+              <b className="text-ink">Founding cohort open</b> — first 1,000 creators lock ₹299/mo forever
             </div>
-            <div>
-              <div className="text-[13px] tracking-wider text-amber">★★★★★</div>
-              <div className="text-sm font-semibold text-muted">
-                <b className="text-ink">2,400+ creators</b> get booked &amp; paid with CreatorOS
-              </div>
+            <div className="flex flex-wrap gap-2 max-lg:justify-center">
+              {["0% commission, ever", "UPI-native", "Made in India"].map((chip) => (
+                <span
+                  key={chip}
+                  className="rounded-full border border-line bg-paper px-3 py-1.5 text-xs font-bold text-ink-2"
+                >
+                  {chip}
+                </span>
+              ))}
             </div>
           </div>
         </div>
@@ -173,8 +161,8 @@ export default function Hero() {
               </div>
               <div className="mt-3.5">
                 {[
-                  { img: "https://randomuser.me/api/portraits/women/12.jpg", name: "Ananya S.", time: "Today · 5:00 pm", badge: "paid", label: "Paid" },
-                  { img: "https://randomuser.me/api/portraits/men/41.jpg", name: "Rohit K.", time: "Tomorrow · 11 am", badge: "new", label: "New" },
+                  { img: ANANYA_AVATAR, name: "Ananya S.", time: "Today · 5:00 pm", badge: "paid", label: "Paid" },
+                  { img: ROHIT_AVATAR, name: "Rohit K.", time: "Tomorrow · 11 am", badge: "new", label: "New" },
                 ].map((r) => (
                   <div key={r.name} className="flex items-center gap-2.5 border-t border-line px-1 py-2 text-xs">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -197,7 +185,7 @@ export default function Hero() {
             <div className="flex flex-col items-center px-2 pb-3.5 pt-1.5 text-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://randomuser.me/api/portraits/women/68.jpg"
+                src={MEERA_AVATAR}
                 alt="Meera Shah"
                 className="mb-2.5 size-16 rounded-full border-[3px] border-white object-cover outline outline-[2.5px] outline-offset-2 outline-terra"
               />

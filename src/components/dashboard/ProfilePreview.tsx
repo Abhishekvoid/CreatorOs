@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
+import { ABHISHEK_AVATAR } from "../persona";
 
 export default function ProfilePreview({ completion = 85 }: { completion?: number }) {
   const [copied, setCopied] = useState(false);
@@ -16,7 +17,7 @@ export default function ProfilePreview({ completion = 85 }: { completion?: numbe
     <section className="flex flex-col rounded-[28px] border border-line bg-paper p-6" aria-label="Public profile preview">
       <div className="flex items-center gap-3">
         <img
-          src="https://randomuser.me/api/portraits/men/32.jpg"
+          src={ABHISHEK_AVATAR}
           alt="Abhishek"
           className="size-12 rounded-full border-2 border-white object-cover shadow-soft outline outline-[1.5px] outline-offset-1 outline-terra"
         />

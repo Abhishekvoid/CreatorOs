@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LogoMark } from "../ui";
 
@@ -22,17 +23,17 @@ export default function ProfileNav() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-100 border-b transition-all duration-350 ${
+      className={`fixed inset-x-0 top-9 z-100 border-b transition-all duration-350 ${
         scrolled ? "border-line bg-cream/80 backdrop-blur-xl" : "border-transparent"
       }`}
     >
       <div className="mx-auto flex h-18 max-w-[1160px] items-center justify-between gap-3 px-6">
-        <a href="/" className="group/logo flex min-w-0 items-center gap-2.5">
+        <Link href="/" className="group/logo flex min-w-0 items-center gap-2.5">
           <LogoMark className="size-[30px] shrink-0 rounded-[10px]" />
           <span className="truncate text-[15px] font-bold tracking-tight">
             <span className="text-faint">creatoros.in/</span>meera
           </span>
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-1.5 md:flex">
           {LINKS.map((l) => (

@@ -1,3 +1,4 @@
+import { MEERA_AVATAR, SNEHA_AVATAR, VIKRAM_AVATAR } from "./persona";
 import Reveal from "./Reveal";
 import { SectionHead } from "./ui";
 
@@ -11,7 +12,7 @@ const STORIES = [
       </>
     ),
     stat: "↑ 2.1× monthly revenue",
-    img: "https://randomuser.me/api/portraits/men/75.jpg",
+    img: VIKRAM_AVATAR,
     name: "Vikram Iyer",
     role: "Fitness coach · Bengaluru",
     dark: false,
@@ -25,7 +26,7 @@ const STORIES = [
       </>
     ),
     stat: "₹1.4L+ saved in fees this year",
-    img: "https://randomuser.me/api/portraits/women/68.jpg",
+    img: MEERA_AVATAR,
     name: "Meera Shah",
     role: "Career coach · Mumbai",
     dark: true,
@@ -39,7 +40,7 @@ const STORIES = [
       </>
     ),
     stat: "8 hrs/week back",
-    img: "https://randomuser.me/api/portraits/women/44.jpg",
+    img: SNEHA_AVATAR,
     name: "Sneha Kulkarni",
     role: "Maths tutor & consultant · Pune",
     dark: false,

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import DemoBanner from "@/components/DemoBanner";
 import Reveal from "@/components/Reveal";
 import { SectionHead } from "@/components/ui";
 import Faq from "@/components/profile/Faq";
@@ -22,6 +23,7 @@ export const metadata: Metadata = {
 export default function MeeraProfile() {
   return (
     <>
+      <DemoBanner />
       <ProfileNav />
       <main>
         <ProfileHeader />

@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { ARJUN_AVATAR, KAVYA_AVATAR, PRIYA_AVATAR, ROHIT_AVATAR, SNEHA_AVATAR } from "../persona";
 
 function PanelIcon({ d, className = "size-[18px]" }: { d: string; className?: string }) {
   return (
@@ -13,7 +14,7 @@ function PanelIcon({ d, className = "size-[18px]" }: { d: string; className?: st
 /* ---------------- upcoming sessions ---------------- */
 const BOOKINGS = [
   {
-    img: "https://randomuser.me/api/portraits/men/41.jpg",
+    img: ROHIT_AVATAR,
     name: "Rohit Sharma",
     service: "Career Strategy Call",
     day: "Today",
@@ -21,7 +22,7 @@ const BOOKINGS = [
     status: "paid" as const,
   },
   {
-    img: "https://randomuser.me/api/portraits/women/33.jpg",
+    img: PRIYA_AVATAR,
     name: "Priya Nair",
     service: "Resume Review",
     day: "Tomorrow",
@@ -29,7 +30,7 @@ const BOOKINGS = [
     status: "paid" as const,
   },
   {
-    img: "https://randomuser.me/api/portraits/men/52.jpg",
+    img: ARJUN_AVATAR,
     name: "Arjun Mehta",
     service: "Mock Interview",
     day: "Fri 14 Jun",
@@ -176,10 +177,10 @@ export function ProfilePerformance() {
 
 /* ---------------- recent payments ---------------- */
 const PAYMENTS = [
-  { img: "https://randomuser.me/api/portraits/men/41.jpg", name: "Rohit Sharma", service: "Career Strategy Call", amount: "₹1,499", date: "Today", status: "Paid", tone: "bg-green-soft text-green-deep" },
-  { img: "https://randomuser.me/api/portraits/women/33.jpg", name: "Priya Nair", service: "Resume Review", amount: "₹799", date: "Yesterday", status: "Paid", tone: "bg-green-soft text-green-deep" },
-  { img: "https://randomuser.me/api/portraits/women/26.jpg", name: "Kavya Reddy", service: "Interview Prep Kit", amount: "₹499", date: "Tue 10 Jun", status: "Paid", tone: "bg-green-soft text-green-deep" },
-  { img: "https://randomuser.me/api/portraits/women/44.jpg", name: "Sneha Kulkarni", service: "Resume Review", amount: "₹799", date: "Tue 10 Jun", status: "Failed", tone: "bg-[#FBEAE7] text-[#B3261E]" },
+  { img: ROHIT_AVATAR, name: "Rohit Sharma", service: "Career Strategy Call", amount: "₹1,499", date: "Today", status: "Paid", tone: "bg-green-soft text-green-deep" },
+  { img: PRIYA_AVATAR, name: "Priya Nair", service: "Resume Review", amount: "₹799", date: "Yesterday", status: "Paid", tone: "bg-green-soft text-green-deep" },
+  { img: KAVYA_AVATAR, name: "Kavya Reddy", service: "Interview Prep Kit", amount: "₹499", date: "Tue 10 Jun", status: "Paid", tone: "bg-green-soft text-green-deep" },
+  { img: SNEHA_AVATAR, name: "Sneha Kulkarni", service: "Resume Review", amount: "₹799", date: "Tue 10 Jun", status: "Failed", tone: "bg-[#FBEAE7] text-[#B3261E]" },
 ];
 
 export function PaymentsTable() {

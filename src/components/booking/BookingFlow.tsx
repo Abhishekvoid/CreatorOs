@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ARJUN_AVATAR, MEERA_AVATAR, PRIYA_AVATAR, ROHIT_AVATAR } from "../persona";
 import { VerifiedBadge } from "../ui";
 
 /* ---------------- pricing ---------------- */
@@ -179,6 +180,7 @@ function Calendar({
 export default function BookingFlow() {
   // availability is date-dependent; gate on mount so SSR and client never disagree
   const [today, setToday] = useState<Date | null>(null);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setToday(startOfDay(new Date())), []);
 
   const router = useRouter();
@@ -484,7 +486,7 @@ export default function BookingFlow() {
           <div className="overflow-hidden rounded-[26px] border border-line bg-paper shadow-card">
             <div className="flex items-center gap-3 border-b border-line bg-cream px-6 py-4">
               <img
-                src="https://randomuser.me/api/portraits/women/68.jpg"
+                src={MEERA_AVATAR}
                 alt="Meera Shah"
                 className="size-11 rounded-full border-2 border-white object-cover outline outline-[1.5px] outline-offset-1 outline-terra"
               />
@@ -574,9 +576,9 @@ export default function BookingFlow() {
             </div>
             <div className="flex flex-col gap-3">
               {[
-                { img: "https://randomuser.me/api/portraits/men/41.jpg", text: "Rohit booked a Strategy Call", when: "5 min ago" },
-                { img: "https://randomuser.me/api/portraits/women/33.jpg", text: "Priya booked a Mock Interview", when: "yesterday" },
-                { img: "https://randomuser.me/api/portraits/men/52.jpg", text: "Arjun booked a Resume Review", when: "this week" },
+                { img: ROHIT_AVATAR, text: "Rohit booked a Strategy Call", when: "5 min ago" },
+                { img: PRIYA_AVATAR, text: "Priya booked a Mock Interview", when: "yesterday" },
+                { img: ARJUN_AVATAR, text: "Arjun booked a Resume Review", when: "this week" },
               ].map((a) => (
                 <div key={a.text} className="flex items-center gap-2.5">
                   <img src={a.img} alt="" className="size-7 rounded-full object-cover" />

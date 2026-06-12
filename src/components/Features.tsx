@@ -1,3 +1,4 @@
+import { ROHIT_AVATAR } from "./persona";
 import Reveal from "./Reveal";
 import SlotRow from "./SlotRow";
 import { Check, SectionHead } from "./ui";
@@ -126,9 +127,9 @@ export default function Features() {
           >
             <div className="flex items-center gap-2.5 rounded-2xl border border-line bg-cream px-3.5 py-2.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="" className="size-8 rounded-full object-cover" />
+              <img src={ROHIT_AVATAR} alt="" className="size-8 rounded-full object-cover" />
               <div>
-                <div className="text-[13px] font-bold">Rohit Kapoor</div>
+                <div className="text-[13px] font-bold">Rohit Sharma</div>
                 <div className="text-[11px] font-semibold text-faint">6 sessions · ₹8,994 lifetime</div>
               </div>
               <div className="ml-auto flex gap-1.5">

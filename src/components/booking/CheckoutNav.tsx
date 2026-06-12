@@ -6,7 +6,8 @@ export default function CheckoutNav({
   backLabel?: React.ReactNode;
 }) {
   return (
-    <header className="fixed inset-x-0 top-0 z-100 border-b border-line bg-cream/85 backdrop-blur-xl">
+    // top-9 leaves room for the fixed DemoBanner above
+    <header className="fixed inset-x-0 top-9 z-100 border-b border-line bg-cream/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-[1160px] items-center justify-between gap-3 px-6">
         <a
           href={backHref}

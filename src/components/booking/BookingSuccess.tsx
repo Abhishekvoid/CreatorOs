@@ -1,6 +1,7 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
+import { MEERA_AVATAR } from "../persona";
 import { VerifiedBadge } from "../ui";
 
 const MEET_LINK = "https://meet.google.com/kzr-vqpd-hub";
@@ -39,7 +40,7 @@ export default function BookingSuccess({ d, t, id = "CR-DEMO42" }: { d?: string;
       <div className="h-anim mt-8 overflow-hidden rounded-[26px] border border-line bg-paper text-left shadow-card" style={{ animationDelay: "0.4s" }}>
         <div className="flex items-center gap-3 border-b border-line bg-cream px-6 py-4">
           <img
-            src="https://randomuser.me/api/portraits/women/68.jpg"
+            src={MEERA_AVATAR}
             alt="Meera Shah"
             className="size-11 rounded-full border-2 border-white object-cover outline outline-[1.5px] outline-offset-1 outline-terra"
           />

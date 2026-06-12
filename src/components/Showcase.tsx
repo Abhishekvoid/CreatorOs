@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ANANYA_AVATAR, PRIYA_AVATAR, ROHIT_AVATAR, VIKRAM_AVATAR } from "./persona";
 import SlotRow from "./SlotRow";
 import { Check, VerifiedBadge } from "./ui";
 
@@ -76,7 +77,7 @@ export default function Showcase() {
                 <div className="flex flex-col items-center px-2 pb-3.5 pt-1.5 text-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="https://randomuser.me/api/portraits/men/75.jpg"
+                    src={VIKRAM_AVATAR}
                     alt="Vikram Iyer"
                     className="mb-2.5 size-16 rounded-full border-[3px] border-white object-cover outline outline-[2.5px] outline-offset-2 outline-terra"
                   />
@@ -220,9 +221,9 @@ export default function Showcase() {
                       <span className="w-[74px] text-right">Status</span>
                     </div>
                     {[
-                      { img: "https://randomuser.me/api/portraits/women/12.jpg", name: "Ananya S.", session: "Strategy call", amt: "₹1,499", badge: "paid", label: "Paid" },
-                      { img: "https://randomuser.me/api/portraits/men/41.jpg", name: "Rohit K.", session: "Resume review", amt: "₹799", badge: "paid", label: "Paid" },
-                      { img: "https://randomuser.me/api/portraits/women/33.jpg", name: "Divya M.", session: "Interview kit", amt: "₹499", badge: "new", label: "New" },
+                      { img: ANANYA_AVATAR, name: "Ananya S.", session: "Strategy call", amt: "₹1,499", badge: "paid", label: "Paid" },
+                      { img: ROHIT_AVATAR, name: "Rohit K.", session: "Resume review", amt: "₹799", badge: "paid", label: "Paid" },
+                      { img: PRIYA_AVATAR, name: "Priya N.", session: "Interview kit", amt: "₹499", badge: "new", label: "New" },
                     ].map((r) => (
                       <div key={r.name} className="flex items-center gap-2.5 border-t border-line px-3.5 py-[11px] text-[12.5px]">
                         <span className="flex flex-[1.4] items-center gap-2 font-bold">
