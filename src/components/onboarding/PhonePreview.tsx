@@ -39,7 +39,7 @@ export default function PhonePreview({ draft }: { draft: CreatorDraft }) {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="text-[12.5px] font-bold uppercase tracking-[0.14em] text-terra-deep">How clients see you</div>
+      <div className="text-[12.5px] font-semibold uppercase tracking-[0.08em] text-terra-deep">How clients see you</div>
       <div className="mt-1 text-[14px] font-bold text-muted">
         <span className="text-faint">creatoros.in/</span>
         <span className="text-ink">{handle}</span>

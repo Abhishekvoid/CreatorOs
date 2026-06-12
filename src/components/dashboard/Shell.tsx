@@ -198,7 +198,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const dateLabel = now?.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <div className="min-h-screen lg:pl-[248px]">
+    <div data-register="product" className="min-h-screen lg:pl-[248px]">
       {/* desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-line bg-paper lg:block">
         <SidebarContent />

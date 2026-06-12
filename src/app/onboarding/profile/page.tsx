@@ -51,7 +51,7 @@ export default function OnboardingProfilePage() {
         </div>
       </header>
 
-      <main className="relative overflow-hidden">
+      <main data-register="product" className="relative overflow-hidden">
         {/* same ambient wash family as the rest of the product */}
         <div
           className="pointer-events-none absolute inset-0"

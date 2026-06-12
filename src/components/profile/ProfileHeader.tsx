@@ -286,7 +286,7 @@ export default function ProfileHeader({
                     key={s.label}
                     href={s.href}
                     aria-label={s.label}
-                    className="grid size-10 place-items-center rounded-full border border-line bg-paper text-muted transition-all duration-300 hover:-translate-y-0.5 hover:border-ink hover:bg-ink hover:text-cream"
+                    className="hit-44 grid size-10 place-items-center rounded-full border border-line bg-paper text-muted transition-all duration-200 hover:-translate-y-0.5 hover:border-ink hover:bg-ink hover:text-cream"
                   >
                     {SOCIAL_ICONS[s.label] ?? s.label}
                   </a>

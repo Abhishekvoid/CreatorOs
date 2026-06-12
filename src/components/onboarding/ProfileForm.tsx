@@ -39,16 +39,17 @@ function Field({
   return (
     <div id={`field-${id}`}>
       <div className="mb-2 flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-[13.5px] font-extrabold tracking-tight">
+        <label htmlFor={id} className="text-[13.5px] font-semibold tracking-tight">
           {label} {required && <span className="text-terra">*</span>}
         </label>
         {counter}
       </div>
-      {children}
+      {/* shake fires when the class is first applied; never remount (focus) */}
+      <div className={error ? "shake" : undefined}>{children}</div>
       {error ? (
-        <p className="mt-1.5 text-[12px] font-bold text-terra-deep">{error}</p>
+        <p className="mt-1.5 text-[12px] font-semibold text-terra-deep">{error}</p>
       ) : (
-        helper && <p className="mt-1.5 text-[12px] font-semibold text-muted">{helper}</p>
+        helper && <p className="mt-1.5 text-[12px] font-medium text-muted">{helper}</p>
       )}
     </div>
   );
@@ -62,7 +63,7 @@ function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
         type="button"
         onClick={onRemove}
         aria-label={`Remove ${label}`}
-        className="grid size-5 place-items-center rounded-full text-faint transition-colors hover:bg-cream-2 hover:text-ink"
+        className="hit-44 grid size-5 place-items-center rounded-full text-faint transition-colors hover:bg-cream-2 hover:text-ink"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" className="size-3" aria-hidden="true">
           <path d="M18 6L6 18M6 6l12 12" />
@@ -143,7 +144,7 @@ function LanguagesInput({ value, onChange }: { value: string[]; onChange: (v: st
               type="button"
               aria-pressed={on}
               onClick={() => toggle(lang)}
-              className={`rounded-full border px-3.5 py-1.5 text-[13px] font-bold transition-all duration-250 ease-soft ${
+              className={`hit-44 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-all duration-150 ease-soft ${
                 on ? "border-ink bg-ink text-cream" : "border-line bg-paper text-ink-2 hover:border-ink"
               }`}
             >

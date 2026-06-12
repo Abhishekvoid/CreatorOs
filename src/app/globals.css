@@ -2,61 +2,74 @@
 
 /* ============================================================
    CreatorOS — design tokens (Tailwind v4 theme)
+
+   Calm-ledger system. All color is OKLCH: neutrals carry a trace
+   (C 0.006–0.012) of the saffron hue (~80°) so paper, borders and
+   greys cohere with the accent. Semantics, enforced everywhere:
+   - saffron  = the single primary action per screen + active states
+   - green    = money landed ("Paid", settlements, income) — only money
+   - red      = destructive / errors only
+   Every text/bg pair below is verified ≥ 4.5:1 (3:1 large) by
+   scripts/contrast-audit.mjs — keep it in sync when editing.
    ============================================================ */
 @theme {
-  --color-cream: #faf8f4;
-  --color-cream-2: #f3efe7;
-  --color-paper: #ffffff;
-  --color-ink: #191712;
-  --color-ink-2: #3d3a33;
-  --color-muted: #6f6a5e;
-  --color-faint: #a39e92;
-  --color-line: #e7e2d7;
-  --color-line-2: #ddd7c9;
+  --color-cream: oklch(97.7% 0.006 80);
+  --color-cream-2: oklch(94.8% 0.01 80);
+  --color-paper: oklch(100% 0 0);
+  --color-ink: oklch(23.5% 0.012 80);
+  --color-ink-2: oklch(37% 0.012 80);
+  --color-muted: oklch(51% 0.012 80);
+  --color-faint: oklch(55% 0.012 80);
+  --color-line: oklch(90.5% 0.011 80);
+  --color-line-2: oklch(87.2% 0.012 80);
 
-  --color-terra: #e2552c;
-  --color-terra-deep: #c24319;
-  --color-amber: #f2a33c;
-  --color-green: #178a5b;
-  --color-green-soft: #e4f4ec;
-  --color-green-deep: #0e6b45;
-  --color-wa: #1faf63;
+  --color-terra: oklch(57.5% 0.165 38);
+  --color-terra-deep: oklch(49.5% 0.15 38);
+  --color-amber: oklch(78% 0.13 70);
+  --color-green: oklch(55% 0.11 165);
+  --color-green-soft: oklch(94.5% 0.028 165);
+  --color-green-deep: oklch(45% 0.1 165);
+  --color-wa: oklch(63% 0.13 158);
 
-  --font-body: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-instrument), Georgia, serif;
 
-  --shadow-soft: 0 1px 2px rgb(25 23 18 / 0.05), 0 2px 8px rgb(25 23 18 / 0.04);
-  --shadow-card: 0 2px 6px rgb(25 23 18 / 0.05), 0 12px 32px -8px rgb(25 23 18 / 0.12);
-  --shadow-pop: 0 4px 12px rgb(25 23 18 / 0.06), 0 32px 64px -16px rgb(25 23 18 / 0.18);
+  /* elevation — exactly three steps; nothing else casts a shadow */
+  --shadow-soft: 0 1px 2px oklch(23.5% 0.012 80 / 0.05), 0 2px 8px oklch(23.5% 0.012 80 / 0.04);
+  --shadow-card: 0 2px 6px oklch(23.5% 0.012 80 / 0.05), 0 12px 32px -8px oklch(23.5% 0.012 80 / 0.1);
+  --shadow-pop: 0 4px 12px oklch(23.5% 0.012 80 / 0.05), 0 28px 56px -16px oklch(23.5% 0.012 80 / 0.16);
 
-  --ease-soft: cubic-bezier(0.22, 0.61, 0.21, 1);
-  --ease-spring: cubic-bezier(0.34, 1.45, 0.45, 1);
+  /* motion — exponential ease-outs only; never bounce or elastic.
+     feedback 100–150ms · state 200–300ms · layout 300–500ms */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring: cubic-bezier(0.25, 1, 0.5, 1); /* legacy name; de-bounced */
 
-  --animate-float-a: float-a 7s ease-in-out infinite;
-  --animate-float-b: float-b 8s ease-in-out infinite;
-  --animate-float-c: float-c 6s ease-in-out infinite;
+  /* idle float loops retired — the ledger sits still */
+  --animate-float-a: none;
+  --animate-float-b: none;
+  --animate-float-c: none;
   --animate-pulse-dot: pulse-dot 2s infinite;
   --animate-marquee: marquee 30s linear infinite;
 
-  @keyframes float-a {
-    0%, 100% { transform: rotate(-2.2deg) translateY(0); }
-    50% { transform: rotate(-2.2deg) translateY(-9px); }
-  }
-  @keyframes float-b {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-7px); }
-  }
-  @keyframes float-c {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
   @keyframes pulse-dot {
-    0%, 100% { box-shadow: 0 0 0 0 rgb(23 138 91 / 0.4); }
-    50% { box-shadow: 0 0 0 6px rgb(23 138 91 / 0); }
+    0%, 100% { box-shadow: 0 0 0 0 oklch(55% 0.11 165 / 0.4); }
+    50% { box-shadow: 0 0 0 6px oklch(55% 0.11 165 / 0); }
   }
   @keyframes marquee {
     to { transform: translateX(-50%); }
   }
+}
+
+/* fixed product type scale — 5 sizes, ratio 1.25, body never below 1rem.
+   Landing headlines may use clamp() with max ≤ 2.5× min. */
+:root {
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.5625rem;
+  --step-3: 1.953rem;
+  --step-4: 2.441rem;
 }
 
 html {
@@ -67,11 +80,21 @@ html {
 body {
   font-size: 16px;
   line-height: 1.55;
+  /* ledger alignment is the brand: every rupee amount, stat and slot
+     time lines up without per-element opt-ins */
+  font-variant-numeric: tabular-nums;
 }
 
+h1, h2, h3 { text-wrap: balance; }
+
 ::selection {
-  background: #f6d9cb;
+  background: oklch(88% 0.05 38);
   color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-terra);
+  outline-offset: 2px;
 }
 
 /* film grain overlay */
@@ -86,17 +109,15 @@ body::before {
 }
 
 /* ============ custom utilities ============ */
+/* historical names; both are solid saffron now — no gradients on UI */
 @utility bg-grad {
-  background-image: linear-gradient(96deg, var(--color-terra) 0%, var(--color-amber) 100%);
+  background-color: var(--color-terra);
 }
 @utility bg-grad-soft {
-  background-image: linear-gradient(135deg, #fceee6 0%, #fbf4e4 55%, #f2f6ee 100%);
+  background-image: linear-gradient(135deg, oklch(95.5% 0.025 45) 0%, oklch(96.5% 0.02 85) 55%, oklch(96% 0.018 150) 100%);
 }
 @utility text-grad {
-  background-image: linear-gradient(96deg, var(--color-terra) 0%, var(--color-amber) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--color-terra-deep);
 }
 
 /* ============ composite components ============ */
@@ -106,74 +127,59 @@ body::before {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 9px;
-    font-weight: 700;
+    gap: 8px;
+    font-weight: 600;
     font-size: 15.5px;
     letter-spacing: -0.01em;
     padding: 14px 26px;
     border-radius: 999px;
     white-space: nowrap;
     position: relative;
-    overflow: hidden;
     cursor: pointer;
     transition:
-      transform 0.35s var(--ease-spring),
-      box-shadow 0.3s var(--ease-soft),
-      background 0.3s,
-      border-color 0.3s;
+      transform 0.12s var(--ease-out-quart),
+      box-shadow 0.2s var(--ease-out-quart),
+      background-color 0.2s var(--ease-out-quart),
+      border-color 0.2s var(--ease-out-quart);
   }
   .btn:active { transform: scale(0.97); }
-  .btn .arr { transition: transform 0.3s var(--ease-soft); }
+  .btn .arr { transition: transform 0.2s var(--ease-out-quart); }
   .btn:hover .arr { transform: translateX(3px); }
   .btn-lg { padding: 17px 32px; font-size: 16.5px; }
 
   .btn-primary {
     background: var(--color-ink);
     color: var(--color-cream);
-    box-shadow: 0 1px 2px rgb(25 23 18 / 0.2), 0 8px 20px -6px rgb(25 23 18 / 0.35);
+    box-shadow: var(--shadow-soft);
   }
   .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgb(25 23 18 / 0.2), 0 14px 30px -6px rgb(25 23 18 / 0.4);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-card);
   }
 
+  /* the single saffron action per screen */
   .btn-grad {
-    background-image: linear-gradient(96deg, var(--color-terra), var(--color-amber));
+    background: var(--color-terra);
     color: #fff;
-    box-shadow: 0 1px 2px rgb(194 67 25 / 0.3), 0 10px 24px -6px rgb(226 85 44 / 0.45);
+    box-shadow: var(--shadow-soft);
   }
   .btn-grad:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgb(194 67 25 / 0.3), 0 16px 34px -6px rgb(226 85 44 / 0.55);
+    background: var(--color-terra-deep);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-card);
   }
-
-  /* sheen sweep on solid buttons */
-  .btn-primary::after,
-  .btn-grad::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -80%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.3), transparent);
-    transform: skewX(-20deg);
-    transition: left 0.6s var(--ease-soft);
-  }
-  .btn-primary:hover::after,
-  .btn-grad:hover::after { left: 130%; }
 
   .btn-ghost {
     background: transparent;
     color: var(--color-ink);
     border: 1.5px solid var(--color-line-2);
   }
-  .btn-ghost:hover { border-color: var(--color-ink); transform: translateY(-2px); }
+  .btn-ghost:hover { border-color: var(--color-ink); transform: translateY(-1px); }
 
-  /* status badges */
+  /* status badges — paid/green is money landed, and only money */
   .badge {
     font-size: 10px;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.04em;
     padding: 3px 9px;
     border-radius: 99px;
@@ -181,16 +187,16 @@ body::before {
     white-space: nowrap;
   }
   .badge-paid { background: var(--color-green-soft); color: var(--color-green-deep); }
-  .badge-new { background: #fce9e1; color: var(--color-terra-deep); }
+  .badge-new { background: oklch(94% 0.025 45); color: var(--color-terra-deep); }
 
-  /* eyebrow label */
+  /* eyebrow label — small, quiet, 0.08em */
   .eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-terra-deep);
     margin-bottom: 18px;
@@ -198,22 +204,33 @@ body::before {
   .eyebrow::before {
     content: "";
     width: 22px;
-    height: 2px;
+    height: 1.5px;
     border-radius: 2px;
-    background-image: linear-gradient(96deg, var(--color-terra), var(--color-amber));
+    background: currentColor;
   }
 
-  /* bookable time slots */
+  /* bookable time slots — visual stays compact, hit area is ≥44px */
   .slot {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
     padding: 8px 13px;
     border-radius: 10px;
     border: 1.5px solid var(--color-line);
     background: var(--color-paper);
     color: var(--color-ink-2);
     cursor: pointer;
-    transition: all 0.25s var(--ease-soft);
+    position: relative;
+    transition: border-color 0.15s var(--ease-out-quart), color 0.15s var(--ease-out-quart),
+      background-color 0.15s var(--ease-out-quart), transform 0.15s var(--ease-out-quart);
+  }
+  .slot::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
   }
   .slot:hover { border-color: var(--color-terra); color: var(--color-terra-deep); transform: translateY(-1px); }
   .slot-taken { opacity: 0.38; text-decoration: line-through; pointer-events: none; }
@@ -228,63 +245,106 @@ body::before {
     background: var(--color-paper);
     padding: 11px 15px;
     font-size: 14.5px;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--color-ink);
     outline: none;
-    transition: border-color 0.25s var(--ease-soft), box-shadow 0.25s var(--ease-soft);
+    transition: border-color 0.15s var(--ease-out-quart), box-shadow 0.15s var(--ease-out-quart);
   }
-  .field::placeholder { color: var(--color-muted); font-weight: 500; }
+  .field::placeholder { color: var(--color-muted); font-weight: 400; }
   .field:hover { border-color: var(--color-line-2); }
-  .field:focus { border-color: var(--color-ink); box-shadow: 0 0 0 4px rgb(25 23 18 / 0.06); }
+  .field:focus { border-color: var(--color-ink); box-shadow: 0 0 0 4px oklch(23.5% 0.012 80 / 0.06); }
+
+  /* expands any small control's hit area to 44×44 without growing it */
+  .hit-44 { position: relative; }
+  .hit-44::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
 }
 
-/* small spring pop for values that change (order summary, slot panels) */
-.pop-in { animation: pop-in 0.35s var(--ease-spring); }
+/* small settle for values that change (order summary, slot panels) */
+.pop-in { animation: pop-in 0.25s var(--ease-out-quart); }
 @keyframes pop-in {
-  from { opacity: 0; transform: scale(0.94) translateY(3px); }
+  from { opacity: 0; transform: scale(0.97) translateY(2px); }
 }
 
-/* dashboard revenue chart: line draws in, area fades up after */
+/* validation shake: 4px, two cycles, then done */
+.shake { animation: shake 0.26s var(--ease-out-quart); }
+@keyframes shake {
+  20% { transform: translateX(-4px); }
+  45% { transform: translateX(4px); }
+  70% { transform: translateX(-2px); }
+}
+
+/* publish signature moment: the live URL types itself on (600ms total,
+   per-character stagger), then the WhatsApp button breathes once */
+.type-on { opacity: 0; animation: type-on 0.18s var(--ease-out-quart) forwards; }
+@keyframes type-on {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.breathe-once { animation: breathe 0.6s 2.4s var(--ease-out-quart) 1; }
+@keyframes breathe {
+  50% { transform: scale(1.045); }
+}
+
+/* income feed: new entries slide in 8px — the green amount is the celebration */
+.feed-in { animation: feed-in 0.3s var(--ease-out-quart) both; }
+@keyframes feed-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+/* dashboard revenue chart: money draws in green, once, fast */
 .chart-line {
   fill: none;
-  stroke: var(--color-terra);
+  stroke: var(--color-green);
   stroke-width: 2.5;
   stroke-linecap: round;
   stroke-dasharray: 900;
   stroke-dashoffset: 900;
-  animation: spark-draw 1.1s var(--ease-soft) forwards;
+  animation: spark-draw 0.45s var(--ease-out-quart) forwards;
 }
-.chart-area { opacity: 0; animation: spark-fade 0.7s 0.7s forwards; }
+.chart-area { opacity: 0; animation: spark-fade 0.3s 0.3s forwards; }
 
-/* booking-success check: badge springs in, then the tick draws itself */
-.check-pop { animation: check-pop 0.6s var(--ease-spring) both; }
+/* booking-success check: draw, then content settles (400ms, once) */
+.check-pop { animation: check-pop 0.4s var(--ease-out-quart) both; }
 @keyframes check-pop {
-  from { opacity: 0; transform: scale(0.4); }
+  from { opacity: 0; transform: scale(0.6); }
 }
 .check-draw {
   stroke-dasharray: 32;
   stroke-dashoffset: 32;
-  animation: check-draw 0.45s 0.35s var(--ease-soft) forwards;
+  animation: check-draw 0.4s 0.15s var(--ease-out-quart) forwards;
 }
 @keyframes check-draw {
   to { stroke-dashoffset: 0; }
 }
 
-/* ============ scroll reveal ============ */
-.reveal {
-  opacity: 0;
-  transform: translateY(26px);
-  transition: opacity 0.8s var(--ease-soft), transform 0.8s var(--ease-soft);
-}
-.reveal.inview { opacity: 1; transform: none; }
+/* ============ scroll handling ============
+   Scrolled sections are simply visible — the per-section fade-and-rise
+   is retired. .inview still toggles for content that narrates state
+   (the old-tools strikethrough). */
+.reveal { opacity: 1; transform: none; }
 
-/* hero entrance */
+/* hero entrance — the landing page's ONE entrance, plays once */
 .h-anim {
   opacity: 0;
-  transform: translateY(22px);
-  animation: h-in 0.9s var(--ease-soft) forwards;
+  transform: translateY(18px);
+  animation: h-in 0.6s var(--ease-out-expo) forwards;
 }
 @keyframes h-in { to { opacity: 1; transform: none; } }
+
+/* product register: users are mid-task — no entrance choreography */
+[data-register="product"] .h-anim {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
 
 /* dotted texture masked into the hero glow panel */
 .dot-texture::after {
@@ -293,29 +353,29 @@ body::before {
   inset: 0;
   border-radius: inherit;
   opacity: 0.5;
-  background-image: radial-gradient(rgb(25 23 18 / 0.13) 1px, transparent 1px);
+  background-image: radial-gradient(oklch(23.5% 0.012 80 / 0.13) 1px, transparent 1px);
   background-size: 18px 18px;
   mask-image: radial-gradient(70% 60% at 60% 40%, black, transparent);
   -webkit-mask-image: radial-gradient(70% 60% at 60% 40%, black, transparent);
 }
 
-/* sparkline draw-in */
+/* hero revenue sparkline — money is green; draws within the hero entrance */
 .spark-line {
   fill: none;
-  stroke: var(--color-terra);
+  stroke: var(--color-green);
   stroke-width: 2.5;
   stroke-linecap: round;
   stroke-dasharray: 600;
   stroke-dashoffset: 600;
-  animation: spark-draw 2.2s 1s var(--ease-soft) forwards;
+  animation: spark-draw 0.7s 0.3s var(--ease-out-expo) forwards;
 }
 @keyframes spark-draw { to { stroke-dashoffset: 0; } }
-.spark-area { opacity: 0; animation: spark-fade 1s 2.2s forwards; }
+.spark-area { opacity: 0; animation: spark-fade 0.5s 0.7s forwards; }
 @keyframes spark-fade { to { opacity: 1; } }
 
 /* strike-through lines over the old tool stack, staggered on reveal */
-.old-tool { position: relative; transition: transform 0.35s var(--ease-soft); }
-.old-tool:hover { transform: translateX(-4px) rotate(-0.5deg); }
+.old-tool { position: relative; transition: transform 0.25s var(--ease-out-quart); }
+.old-tool:hover { transform: translateX(-4px); }
 .old-tool::after {
   content: "";
   position: absolute;
@@ -328,18 +388,18 @@ body::before {
   opacity: 0;
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.5s var(--ease-soft), opacity 0.3s;
+  transition: transform 0.4s var(--ease-out-quart), opacity 0.25s;
 }
 .reveal.inview .old-tool::after { opacity: 0.75; transform: scaleX(1); }
-.reveal.inview .old-tool:nth-child(1)::after { transition-delay: 0.15s; }
-.reveal.inview .old-tool:nth-child(2)::after { transition-delay: 0.3s; }
-.reveal.inview .old-tool:nth-child(3)::after { transition-delay: 0.45s; }
-.reveal.inview .old-tool:nth-child(4)::after { transition-delay: 0.6s; }
-.reveal.inview .old-tool:nth-child(5)::after { transition-delay: 0.75s; }
+.reveal.inview .old-tool:nth-child(1)::after { transition-delay: 0.04s; }
+.reveal.inview .old-tool:nth-child(2)::after { transition-delay: 0.08s; }
+.reveal.inview .old-tool:nth-child(3)::after { transition-delay: 0.12s; }
+.reveal.inview .old-tool:nth-child(4)::after { transition-delay: 0.16s; }
+.reveal.inview .old-tool:nth-child(5)::after { transition-delay: 0.2s; }
 
-/* step number tiles: rotating dashed ring on hover */
+/* step number tiles */
 .step-num {
-  transition: transform 0.4s var(--ease-spring), box-shadow 0.4s;
+  transition: transform 0.25s var(--ease-out-quart), box-shadow 0.25s var(--ease-out-quart);
 }
 .step-num::after {
   content: "";
@@ -347,15 +407,14 @@ body::before {
   inset: -7px;
   border-radius: 33px;
   border: 1.5px dashed var(--color-line-2);
-  transition: border-color 0.4s, transform 8s linear;
+  transition: border-color 0.25s var(--ease-out-quart);
 }
 .group\/step:hover .step-num {
-  transform: translateY(-6px) rotate(-4deg);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-card);
 }
 .group\/step:hover .step-num::after {
   border-color: var(--color-terra);
-  transform: rotate(90deg);
 }
 
 /* dashed connector between steps (desktop) */
@@ -371,7 +430,7 @@ body::before {
   background-size: 14px 2px;
 }
 
-/* feature card top gradient bar */
+/* feature card top accent bar */
 .feat::before {
   content: "";
   position: absolute;
@@ -379,21 +438,21 @@ body::before {
   left: 0;
   right: 0;
   height: 3px;
-  background-image: linear-gradient(96deg, var(--color-terra), var(--color-amber));
+  background: var(--color-terra);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.5s var(--ease-soft);
+  transition: transform 0.35s var(--ease-out-quart);
 }
 .feat:hover::before { transform: scaleX(1); }
 
-/* showcase pane entrance */
-.pane-in { animation: pane-in 0.55s var(--ease-soft); }
+/* showcase pane entrance (brand surface, state change between tabs) */
+.pane-in { animation: pane-in 0.3s var(--ease-out-quart); }
 @keyframes pane-in {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: none; }
 }
 
-/* fake UPI QR with scan beam */
+/* fake UPI QR — still, like the rest of the receipt */
 .pm-qr {
   background:
     conic-gradient(var(--color-ink) 25%, transparent 0 50%, var(--color-ink) 0 75%, transparent 0) 0 0 / 24px 24px,
@@ -410,20 +469,6 @@ body::before {
   border-radius: 8px;
   z-index: 1;
 }
-.pm-qr::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 34%;
-  top: -34%;
-  background: linear-gradient(180deg, transparent, rgb(23 138 91 / 0.18), transparent);
-  animation: qr-scan 2.6s ease-in-out infinite;
-}
-@keyframes qr-scan {
-  0% { top: -34%; }
-  55%, 100% { top: 110%; }
-}
 
 /* glow blobs + dot mask on dark cards */
 .glow-tr::before {
@@ -434,7 +479,7 @@ body::before {
   width: 230px;
   height: 230px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(242 163 60 / 0.32), transparent 70%);
+  background: radial-gradient(circle, oklch(78% 0.13 70 / 0.32), transparent 70%);
   pointer-events: none;
 }
 .glow-top::before {
@@ -446,7 +491,7 @@ body::before {
   width: 680px;
   height: 420px;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(242 163 60 / 0.28), rgb(226 85 44 / 0.12) 55%, transparent);
+  background: radial-gradient(closest-side, oklch(78% 0.13 70 / 0.28), oklch(57.5% 0.165 38 / 0.12) 55%, transparent);
   pointer-events: none;
 }
 .glow-top::after {
@@ -455,10 +500,22 @@ body::before {
   inset: 0;
   opacity: 0.4;
   pointer-events: none;
-  background-image: radial-gradient(rgb(250 248 244 / 0.1) 1px, transparent 1px);
+  background-image: radial-gradient(oklch(97.7% 0.006 80 / 0.1) 1px, transparent 1px);
   background-size: 22px 22px;
   mask-image: radial-gradient(60% 70% at 50% 0%, black, transparent);
   -webkit-mask-image: radial-gradient(60% 70% at 50% 0%, black, transparent);
+}
+
+/* ============ booking-step view transitions ============
+   The summary card morphs persistently while step content crossfades. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+  animation-timing-function: var(--ease-out-quart);
+}
+::view-transition-group(booking-summary) {
+  animation-duration: 300ms;
+  animation-timing-function: var(--ease-out-expo);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -468,4 +525,9 @@ body::before {
     transition-duration: 0.01ms !important;
   }
   html { scroll-behavior: auto; }
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(booking-summary) {
+    animation: none !important;
+  }
 }

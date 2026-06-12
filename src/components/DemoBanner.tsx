@@ -8,9 +8,10 @@ export default function DemoBanner() {
         <span className="max-sm:hidden">your page will look like this in 5 minutes.</span>
         <span className="sm:hidden">yours in 5 minutes.</span>
       </p>
+      {/* ink-register CTA: the page's one saffron action stays "Book a session" */}
       <Link
         href="/#final"
-        className="shrink-0 rounded-full bg-grad px-3 py-1 text-[11.5px] font-extrabold text-white shadow-[0_2px_8px_-2px_rgba(226,85,44,.6)] transition-transform duration-200 hover:scale-[1.04]"
+        className="hit-44 shrink-0 rounded-full bg-cream px-3 py-1 text-[11.5px] font-bold text-ink transition-colors duration-150 hover:bg-paper"
       >
         Claim your free link →
       </Link>

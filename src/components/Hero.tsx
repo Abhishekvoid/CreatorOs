@@ -60,7 +60,7 @@ export default function Hero() {
             Founding-member pricing is live — 0% commission, forever
           </a>
           <h1
-            className="h-anim mb-5 text-[clamp(40px,5.6vw,64px)] font-black leading-[1.08] tracking-[-0.025em] max-md:text-[clamp(34px,9.4vw,44px)]"
+            className="h-anim mb-5 text-[clamp(40px,5.6vw,64px)] font-black leading-[1.1] tracking-[-0.025em] max-md:text-[clamp(34px,9.4vw,44px)]"
             style={{ animationDelay: "0.15s" }}
           >
             Run your entire creator business from{" "}
