@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { destinationFor, type ProfileRouteRow } from "@/lib/auth";
+import { destinationFor, PROFILE_ROUTE_COLUMNS, type ProfileRouteRow } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -18,7 +18,7 @@ export default async function OnboardingIndex() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("onboarding_step, is_published")
+    .select(PROFILE_ROUTE_COLUMNS)
     .eq("id", user.id)
     .maybeSingle<ProfileRouteRow>();
 
