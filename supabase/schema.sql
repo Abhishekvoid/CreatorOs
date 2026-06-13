@@ -330,6 +330,12 @@ create index if not exists notification_queue_correlation_idx on public.notifica
 -- claimable jobs for the notification worker (FOR UPDATE SKIP LOCKED)
 create index if not exists notification_queue_claimable_idx
   on public.notification_queue (next_attempt_at) where status in ('pending', 'processing');
+-- Notification identity: at most one row per (booking, type). The processor's
+-- recipient is encoded in `type` (creator_/client_ × confirmation/cancellation),
+-- so this makes a replayed event's enqueue a structural no-op
+-- (insert ... on conflict (booking_id, type) do nothing).
+create unique index if not exists notification_queue_identity_idx
+  on public.notification_queue (booking_id, type);
 
 -- ---- recovery_actions -----------------------------------------------
 -- Append-only audit log of operator recovery actions. The only permitted

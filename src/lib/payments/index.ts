@@ -6,6 +6,8 @@ export { initiate } from "./initiate";
 export type { InitiateInput, CheckoutPayload } from "./initiate";
 export { ingestWebhook } from "./ingest";
 export type { IngestInput, IngestResult } from "./ingest";
+export { processPendingEvents } from "./processor";
+export type { ProcessSummary } from "./processor";
 export { getPaymentProvider } from "./provider";
 export type { PaymentProvider } from "./provider";
 export { NotImplementedError, OrderCreationError } from "./errors";
