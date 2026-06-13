@@ -27,3 +27,11 @@ export class OrderCreationError extends Error {
     this.cause = cause;
   }
 }
+
+/** A recovery action targeted a row that does not exist. */
+export class RecoveryError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "RecoveryError";
+  }
+}

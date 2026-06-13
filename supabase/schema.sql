@@ -337,6 +337,22 @@ create index if not exists notification_queue_claimable_idx
 create unique index if not exists notification_queue_identity_idx
   on public.notification_queue (booking_id, type);
 
+-- ============================================================
+-- Part 7 — Notification Worker support (additive, idempotent)
+-- The Notification Worker (Phase 7) drains notification_queue rows the
+-- Processor enqueued and drives a retry/dead-letter state machine. It is
+-- downstream of truth and may modify ONLY notification_queue. These two
+-- additions to the existing notification_queue support that worker:
+--   * last_error  — the most recent provider failure, persisted on retry/DL.
+--   * a reaper index — find stuck 'processing' rows past their lease quickly.
+-- ============================================================
+alter table public.notification_queue
+  add column if not exists last_error text;
+
+-- the reaper claims rows whose processing lease has lapsed
+create index if not exists notification_queue_stuck_idx
+  on public.notification_queue (processing_expires_at) where status = 'processing';
+
 -- ---- recovery_actions -----------------------------------------------
 -- Append-only audit log of operator recovery actions. The only permitted
 -- action_types are the three safe ones; mark-paid / mark-confirmed /
@@ -354,6 +370,19 @@ create table if not exists public.recovery_actions (
   created_at timestamptz not null default now()
 );
 create index if not exists recovery_actions_correlation_idx on public.recovery_actions (correlation_id);
+
+-- ============================================================
+-- Part 8 — Recovery audit fields (additive, idempotent)
+-- The Phase 8 Recovery Service appends one recovery_actions row per operator
+-- action. Section D names performed_by (the operator; legacy actor_id stays as
+-- a nullable alias) and payload (action detail). The action_type CHECK above
+-- already makes mark_paid / confirm_booking / release_lock / delete_event /
+-- edit_event unrepresentable, and the append-only guard below blocks any
+-- update/delete — so this audit log can never be rewritten.
+-- ============================================================
+alter table public.recovery_actions
+  add column if not exists performed_by uuid,
+  add column if not exists payload jsonb not null default '{}';
 
 -- ---- updated_at triggers (reuse public.set_updated_at) --------------
 drop trigger if exists bookings_set_updated_at on public.bookings;

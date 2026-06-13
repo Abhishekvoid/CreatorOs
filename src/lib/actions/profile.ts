@@ -115,6 +115,35 @@ export async function saveProfileDraft(
 }
 
 /**
+ * Publish the creator's page: flip is_published=true so creatoros.in/{handle}
+ * goes live. Gated — a creator must have at least one active bookable service,
+ * so a published page is always bookable.
+ */
+export async function publishProfile(): Promise<{ success: boolean; error?: string }> {
+  if (!isSupabaseConfigured) return { success: false, error: "Supabase isn't configured" };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Not signed in" };
+
+  const { count } = await supabase
+    .from("services")
+    .select("id", { count: "exact", head: true })
+    .eq("profile_id", user.id)
+    .eq("type", "booking")
+    .eq("is_active", true);
+  if (!count || count < 1) {
+    return { success: false, error: "Add at least one bookable service before publishing." };
+  }
+
+  const { error } = await supabase.from("profiles").update({ is_published: true }).eq("id", user.id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+/**
  * Uploads the cropped avatar (400px JPEG data URL) to the public `avatars`
  * bucket and returns its URL. If storage isn't reachable (bucket missing,
  * offline dev) the data URL itself is returned and lives inline in
