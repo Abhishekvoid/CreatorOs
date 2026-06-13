@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
 import { isCronAuthorized, cronUnauthorized } from "@/lib/cron-auth";
 import { GET as reconcileGET } from "@/app/api/cron/reconcile/route";
+import { GET as notificationsGET } from "@/app/api/cron/notifications/route";
 import proxy from "@/proxy";
 
 /**
@@ -63,6 +64,13 @@ describe("cronUnauthorized", () => {
 describe("reconcile route enforces the guard", () => {
   it("returns 401 with no credentials (and does not run the sweep)", async () => {
     const res = await reconcileGET(req({}));
+    expect(res.status).toBe(401);
+  });
+});
+
+describe("notifications route enforces the guard", () => {
+  it("returns 401 with no credentials (and does not run the worker)", async () => {
+    const res = await notificationsGET(req({}));
     expect(res.status).toBe(401);
   });
 });
