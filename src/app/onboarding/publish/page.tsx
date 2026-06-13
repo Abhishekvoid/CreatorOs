@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import PublishMoment from "@/components/onboarding/PublishMoment";
+import { publishProfile } from "@/lib/actions/profile";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export const metadata: Metadata = {
   title: "Your page is live | CreatorOS",
@@ -7,10 +10,15 @@ export const metadata: Metadata = {
 };
 
 /**
- * Onboarding completion: the publish signature moment. (The services
- * builder slots in before this screen when it ships.)
+ * Onboarding completion: publish the page (is_published=true), then the publish
+ * signature moment. Publishing requires at least one bookable service; if the
+ * creator hasn't added one we send them back to the service step.
  */
-export default function OnboardingPublishPage() {
+export default async function OnboardingPublishPage() {
+  if (isSupabaseConfigured) {
+    const result = await publishProfile();
+    if (!result.success) redirect("/onboarding/service");
+  }
   return (
     <main className="relative grid min-h-screen place-items-center overflow-hidden py-16">
       <div
