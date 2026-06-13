@@ -4,6 +4,7 @@ import { isCronAuthorized, cronUnauthorized } from "@/lib/cron-auth";
 import { GET as reconcileGET } from "@/app/api/cron/reconcile/route";
 import { GET as notificationsGET } from "@/app/api/cron/notifications/route";
 import { GET as integrityGET } from "@/app/api/cron/integrity/route";
+import { GET as processEventsGET } from "@/app/api/cron/process-events/route";
 import proxy from "@/proxy";
 
 /**
@@ -79,6 +80,13 @@ describe("notifications route enforces the guard", () => {
 describe("integrity route enforces the guard", () => {
   it("returns 401 with no credentials (and does not run the checks)", async () => {
     const res = await integrityGET(req({}));
+    expect(res.status).toBe(401);
+  });
+});
+
+describe("process-events route enforces the guard", () => {
+  it("returns 401 with no credentials (and does not run the processor)", async () => {
+    const res = await processEventsGET(req({}));
     expect(res.status).toBe(401);
   });
 });
