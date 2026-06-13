@@ -76,8 +76,18 @@ export default function AvailabilityForm({
   service: ServiceDraft | null;
 }) {
   const router = useRouter();
-  const [windows, setWindows] = useState<DayWindow[]>(initial ?? defaultWindows);
-  const [saveState, setSaveState] = useState<"idle" | "dirty" | "saved">("idle");
+  // First-time creators (initial === null) see the Mon–Fri default purely as a
+  // starting point; it isn't persisted until they edit or Continue, so a stale
+  // read can never overwrite a real saved week.
+  const [windows, setWindows] = useState<DayWindow[]>(() => initial ?? defaultWindows());
+  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  // JSON of the week last confirmed in the DB; null until anything persists.
+  const [savedSnapshot, setSavedSnapshot] = useState<string | null>(() =>
+    initial ? JSON.stringify(initial) : null,
+  );
+  // `edited` gates the autosave so it only fires after a genuine user change —
+  // never on mount (which would auto-write defaults over existing data).
+  const [edited, setEdited] = useState(false);
 
   const rowError = (w: DayWindow) =>
     w.isActive && w.startTime >= w.endTime ? "End time must be after the start." : null;
@@ -85,25 +95,47 @@ export default function AvailabilityForm({
   const allOff = windows.every((w) => !w.isActive);
   const slots = nextSlots(windows);
 
-  /* autosave, debounced 800ms — held while any row is invalid */
+  const snapshot = JSON.stringify(windows);
+  // Edits exist that aren't yet persisted — the gate for both autosave and Continue.
+  const unsaved = edited && snapshot !== savedSnapshot;
+  // Continue may proceed only once the current week is safely persisted and no
+  // save is in flight. Untouched defaults are fine: Continue itself persists them.
+  const canContinue = allValid && !unsaved && status !== "saving";
+
+  /* autosave, debounced 800ms — held while any row is invalid or in flight */
   useEffect(() => {
-    if (saveState !== "dirty" || !allValid) return;
+    if (!unsaved || !allValid) return;
+    const pending = snapshot;
     const t = setTimeout(async () => {
+      setStatus("saving");
       const res = await saveAvailability(windows);
-      if (res.success) setSaveState("saved");
+      if (res.success) {
+        setSavedSnapshot(pending);
+        setStatus("saved");
+      } else {
+        setStatus("error"); // savedSnapshot untouched → stays unsaved, Continue blocked
+      }
     }, 800);
     return () => clearTimeout(t);
-  }, [windows, saveState, allValid]);
+  }, [windows, snapshot, unsaved, allValid]);
 
   function patch(dayOfWeek: number, p: Partial<DayWindow>) {
     setWindows((ws) => ws.map((w) => (w.dayOfWeek === dayOfWeek ? { ...w, ...p } : w)));
-    setSaveState("dirty");
+    setEdited(true);
   }
 
   async function onContinue() {
-    if (!allValid) return; // the offending row already shows its error
+    if (!canContinue) return; // disabled state already reflects why
+    // Re-save with the completion flag: the step is marked done only when these
+    // rows actually persist (Part 5). A failure surfaces and never advances.
+    setStatus("saving");
     const res = await saveAvailability(windows, { complete: true });
-    if (!res.success) return;
+    if (!res.success) {
+      setStatus("error");
+      return;
+    }
+    setSavedSnapshot(snapshot);
+    setStatus("saved");
     router.push("/onboarding/payments");
   }
 
@@ -163,21 +195,34 @@ export default function AvailabilityForm({
           </p>
         )}
 
+        {/* save failure surfaces here — same quiet style as the row validation */}
+        {status === "error" && (
+          <p aria-live="polite" className="mt-4 text-[13px] font-semibold text-terra-deep">
+            Couldn&rsquo;t save availability. Check your connection and try again.
+          </p>
+        )}
+
         {/* ---------------- continue ---------------- */}
         <div className="mt-8 flex items-center gap-4 border-t border-line pt-6">
-          <button type="button" onClick={onContinue} className="btn btn-grad btn-lg">
+          <button
+            type="button"
+            onClick={onContinue}
+            disabled={!canContinue}
+            className="btn btn-grad btn-lg disabled:cursor-default disabled:opacity-50"
+          >
             Continue <span className="arr">→</span>
           </button>
-          <span
-            aria-live="polite"
-            className={`inline-flex items-center gap-1.5 text-[13px] font-bold text-green transition-opacity duration-500 ${
-              saveState === "saved" ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" className="size-3.5" aria-hidden="true">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
-            Saved
+          <span aria-live="polite" className="inline-flex items-center gap-1.5 text-[13px] font-bold">
+            {status === "saving" && <span className="text-muted">Saving…</span>}
+            {status === "saved" && (
+              <span className="inline-flex items-center gap-1.5 text-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" className="size-3.5" aria-hidden="true">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                Saved
+              </span>
+            )}
+            {status === "error" && <span className="text-terra-deep">Couldn&rsquo;t save</span>}
           </span>
         </div>
         <p className="mt-4 text-[13px] font-medium text-muted">
@@ -200,19 +245,23 @@ export default function AvailabilityForm({
                     service={service}
                     slots={
                       slots.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                          {slots.map((label) => (
-                            <span key={label} className="slot pointer-events-none">
-                              {label}
-                            </span>
-                          ))}
+                        <div>
+                          <div className="text-[11px] font-extrabold uppercase tracking-wider text-faint">
+                            Next available
+                          </div>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {slots.map((label) => (
+                              <span key={label} className="slot pointer-events-none">
+                                {label}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      ) : undefined
+                      ) : (
+                        <p className="text-[12.5px] font-semibold text-muted">No slots yet</p>
+                      )
                     }
                   />
-                  {slots.length === 0 && (
-                    <p className="mt-3 text-center text-[12.5px] font-semibold text-muted">No slots yet</p>
-                  )}
                 </div>
               ) : undefined
             }

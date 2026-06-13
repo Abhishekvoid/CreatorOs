@@ -12,7 +12,7 @@ export default function PreviewPane({ children }: { children: React.ReactNode })
 
   return (
     <>
-      <div className="sticky top-10 max-lg:hidden">{children}</div>
+      <div className="sticky top-[120px] max-lg:hidden">{children}</div>
 
       {/* mobile: floating preview button + bottom sheet */}
       <button

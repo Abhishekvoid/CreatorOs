@@ -28,11 +28,20 @@ export async function getAvailability(): Promise<DayWindow[] | null> {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data: rows } = await supabase
+  const { data: rows, error } = await supabase
     .from("availability")
     .select("day_of_week, start_time, end_time, is_active")
     .eq("profile_id", user.id)
     .returns<AvailabilityRow[]>();
+
+  // A read failure (or null/empty) returns null so the form falls back to the
+  // first-time default *for display* without crashing. Crucially, the form
+  // only persists those defaults on an explicit edit or Continue — never
+  // automatically — so a transient read error can't overwrite a saved week.
+  if (error) {
+    console.error("getAvailability: read failed —", error.message);
+    return null;
+  }
   if (!rows || rows.length === 0) return null;
 
   return rows.map((r) => ({
