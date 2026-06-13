@@ -69,8 +69,17 @@ export interface PaymentProvider {
  * Resolve the active provider from PAYMENT_PROVIDER (test | route),
  * defaulting to test. Not cached, so the value is always current — and so
  * tests can flip the env between calls.
+ *
+ * Route is gated in production behind RAZORPAY_ROUTE_ENABLED: until platform
+ * KYC / Route onboarding is approved, flipping PAYMENT_PROVIDER=route in a
+ * production deploy fails fast instead of silently routing to a stub.
  */
 export function getPaymentProvider(): PaymentProvider {
   const which = (process.env.PAYMENT_PROVIDER ?? "test").toLowerCase();
-  return which === "route" ? new RouteProvider() : new TestModeProvider();
+  if (which !== "route") return new TestModeProvider();
+
+  if (process.env.NODE_ENV === "production" && !process.env.RAZORPAY_ROUTE_ENABLED) {
+    throw new Error("RouteProvider cannot be enabled before Route onboarding.");
+  }
+  return new RouteProvider();
 }

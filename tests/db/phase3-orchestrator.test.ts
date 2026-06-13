@@ -168,4 +168,28 @@ describe("provider selection by env", () => {
       else process.env.PAYMENT_PROVIDER = prev;
     }
   });
+
+  it("(6) route is blocked in production unless RAZORPAY_ROUTE_ENABLED is set", () => {
+    const prevProvider = process.env.PAYMENT_PROVIDER;
+    const prevNodeEnv = process.env.NODE_ENV;
+    const prevRouteFlag = process.env.RAZORPAY_ROUTE_ENABLED;
+    process.env.PAYMENT_PROVIDER = "route";
+    process.env.NODE_ENV = "production";
+    delete process.env.RAZORPAY_ROUTE_ENABLED;
+    try {
+      expect(() => getPaymentProvider()).toThrow(/Route onboarding/);
+
+      process.env.RAZORPAY_ROUTE_ENABLED = "1";
+      expect(getPaymentProvider().getProviderName()).toBe("razorpay_route");
+    } finally {
+      restore("PAYMENT_PROVIDER", prevProvider);
+      restore("NODE_ENV", prevNodeEnv);
+      restore("RAZORPAY_ROUTE_ENABLED", prevRouteFlag);
+    }
+  });
 });
+
+function restore(key: string, prev: string | undefined): void {
+  if (prev === undefined) delete process.env[key];
+  else process.env[key] = prev;
+}
