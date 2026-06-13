@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import { isCronAuthorized, cronUnauthorized } from "@/lib/cron-auth";
 import { GET as reconcileGET } from "@/app/api/cron/reconcile/route";
 import { GET as notificationsGET } from "@/app/api/cron/notifications/route";
+import { GET as integrityGET } from "@/app/api/cron/integrity/route";
 import proxy from "@/proxy";
 
 /**
@@ -71,6 +72,13 @@ describe("reconcile route enforces the guard", () => {
 describe("notifications route enforces the guard", () => {
   it("returns 401 with no credentials (and does not run the worker)", async () => {
     const res = await notificationsGET(req({}));
+    expect(res.status).toBe(401);
+  });
+});
+
+describe("integrity route enforces the guard", () => {
+  it("returns 401 with no credentials (and does not run the checks)", async () => {
+    const res = await integrityGET(req({}));
     expect(res.status).toBe(401);
   });
 });

@@ -371,6 +371,19 @@ create table if not exists public.recovery_actions (
 );
 create index if not exists recovery_actions_correlation_idx on public.recovery_actions (correlation_id);
 
+-- ============================================================
+-- Part 8 — Recovery audit fields (additive, idempotent)
+-- The Phase 8 Recovery Service appends one recovery_actions row per operator
+-- action. Section D names performed_by (the operator; legacy actor_id stays as
+-- a nullable alias) and payload (action detail). The action_type CHECK above
+-- already makes mark_paid / confirm_booking / release_lock / delete_event /
+-- edit_event unrepresentable, and the append-only guard below blocks any
+-- update/delete — so this audit log can never be rewritten.
+-- ============================================================
+alter table public.recovery_actions
+  add column if not exists performed_by uuid,
+  add column if not exists payload jsonb not null default '{}';
+
 -- ---- updated_at triggers (reuse public.set_updated_at) --------------
 drop trigger if exists bookings_set_updated_at on public.bookings;
 create trigger bookings_set_updated_at

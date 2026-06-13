@@ -37,8 +37,12 @@ type ReconTarget = {
 
 type ResolvedState = "captured" | "failed" | "expired" | "unknown";
 
-/** Map provider status to a verdict. Anything not definitive stays `unknown`. */
-function classifyProviderState(order: ProviderOrderStatus, payment: ProviderPaymentStatus | null): ResolvedState {
+/**
+ * Map provider status to a verdict. Anything not definitive stays `unknown`.
+ * Exported (additively) so Phase 8 recovery can reuse the exact same
+ * classification — behaviour of the sweep is unchanged.
+ */
+export function classifyProviderState(order: ProviderOrderStatus, payment: ProviderPaymentStatus | null): ResolvedState {
   const o = order.status?.toLowerCase();
   const p = payment?.status?.toLowerCase();
   if (p === "captured" || o === "paid" || o === "captured") return "captured";

@@ -12,4 +12,13 @@ export { reconcileSweep } from "./reconcile";
 export type { SweepCounts } from "./reconcile";
 export { getPaymentProvider } from "./provider";
 export type { PaymentProvider } from "./provider";
-export { NotImplementedError, OrderCreationError } from "./errors";
+export { NotImplementedError, OrderCreationError, RecoveryError } from "./errors";
+
+// Phase 8 — operational layer (read-only health/integrity/dashboard + safe recovery)
+export { getPaymentHealth } from "./health";
+export type { PaymentHealth } from "./health";
+export { runIntegrityChecks } from "./integrity";
+export type { IntegrityViolation } from "./integrity";
+export { getDashboardData } from "./dashboard";
+export type { DashboardData } from "./dashboard";
+export { replayEvent, retryReconciliation, retryNotification } from "./recovery";
