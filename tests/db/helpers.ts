@@ -17,8 +17,20 @@ export function makePool(): Pool {
   return new Pool({ connectionString: DB_URL, max: 8 });
 }
 
-/** Apply the whole schema. Safe to call repeatedly — every statement is idempotent. */
+/**
+ * Apply the whole schema to a pristine `public`. We reset the schema first
+ * because parts of schema.sql (the original profiles policies) use bare
+ * `create policy` and aren't re-runnable from an already-applied state.
+ * Local Postgres is test-only (the app talks to the remote project), so a
+ * reset is safe and gives every run a clean, deterministic database.
+ */
 export async function applySchema(pool: Pool): Promise<void> {
+  await pool.query(`
+    drop schema if exists public cascade;
+    create schema public;
+    grant usage on schema public to anon, authenticated, service_role;
+    grant all on schema public to postgres, service_role;
+  `);
   const sql = readFileSync(resolve(process.cwd(), "supabase/schema.sql"), "utf8");
   await pool.query(sql);
 }
@@ -87,4 +99,68 @@ export function pgErrorCode(err: unknown): string | undefined {
   return typeof err === "object" && err !== null && "code" in err
     ? String((err as { code: unknown }).code)
     : undefined;
+}
+
+/** Seed a bookings row; returns its id. */
+export async function seedBooking(
+  pool: Pool,
+  input: {
+    creatorId: string;
+    slotStart: string;
+    slotEnd: string;
+    amountPaise?: number;
+    correlationId?: string;
+  },
+): Promise<string> {
+  const {
+    rows: [{ id }],
+  } = await pool.query<{ id: string }>(
+    `insert into public.bookings
+       (correlation_id, creator_id, slot_start, slot_end, amount_paise)
+     values (coalesce($1, gen_random_uuid()), $2, $3, $4, $5)
+     returning id`,
+    [input.correlationId ?? null, input.creatorId, input.slotStart, input.slotEnd, input.amountPaise ?? 149900],
+  );
+  return id;
+}
+
+/** Seed one active weekly availability window (IST wall-clock) for a creator. */
+export async function seedAvailabilityWindow(
+  pool: Pool,
+  creatorId: string,
+  dayOfWeek: number,
+  start: string,
+  end: string,
+): Promise<void> {
+  await pool.query(
+    `insert into public.availability (profile_id, day_of_week, start_time, end_time, is_active)
+     values ($1, $2, $3, $4, true)`,
+    [creatorId, dayOfWeek, start, end],
+  );
+}
+
+/** Read a lock's current status by id. */
+export async function lockStatus(pool: Pool, id: string): Promise<string | null> {
+  const { rows } = await pool.query<{ status: string }>(
+    `select status from public.booking_locks where id = $1`,
+    [id],
+  );
+  return rows[0]?.status ?? null;
+}
+
+/** Backdate a lock's expires_at so an expiry sweep will pick it up. */
+export async function expireLockNow(pool: Pool, id: string): Promise<void> {
+  await pool.query(`update public.booking_locks set expires_at = now() - interval '1 minute' where id = $1`, [id]);
+}
+
+const IST_OFFSET_MIN = 330;
+
+/** UTC ISO string for an IST wall-clock instant — mirrors the service's conversion. */
+export function istToUtcISO(year: number, month1: number, day: number, hh: number, mm = 0): string {
+  return new Date(Date.UTC(year, month1 - 1, day, hh, mm) - IST_OFFSET_MIN * 60_000).toISOString();
+}
+
+/** Weekday (0=Sun..6=Sat) of an IST civil date. */
+export function istWeekday(year: number, month1: number, day: number): number {
+  return new Date(Date.UTC(year, month1 - 1, day)).getUTCDay();
 }
