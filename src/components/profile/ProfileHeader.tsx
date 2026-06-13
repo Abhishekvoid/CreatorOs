@@ -80,6 +80,12 @@ const MEERA_DATA: ProfileHeaderData = {
   ],
 };
 
+/* capitalize each word, preserving acronyms (USA) and intercaps (McKinsey) —
+   so "ahmedabad, india" reads "Ahmedabad, India" without mangling the rest */
+function titleCase(s: string): string {
+  return s.replace(/\S+/g, (w) => w.charAt(0).toUpperCase() + w.slice(1));
+}
+
 /* dots inside the title pick up the same faint styling everywhere */
 function Title({ title }: { title: string }) {
   const parts = title.split("·").map((p) => p.trim()).filter(Boolean);
@@ -139,7 +145,6 @@ export default function ProfileHeader({
 } = {}) {
   const c = creator ?? MEERA_DATA;
   const initial = (c.name.trim()[0] || "Y").toUpperCase();
-  const metaBits = [c.location, ...(coldStart ? [] : ["Replies within 2 hours"])].filter(Boolean);
   const socials = (c.socials ?? []).filter((s) => s.href);
 
   /* stacked = the real mobile arrangement, forced at any viewport */
@@ -209,56 +214,64 @@ export default function ProfileHeader({
                   <Title title={c.title} />
                 </p>
               )}
-              {(metaBits.length > 0 || (c.languages?.length ?? 0) > 0) && (
+              {(c.location || !coldStart || (c.languages?.length ?? 0) > 0) && (
                 <div
                   className={cx(
-                    "mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] font-semibold text-muted",
-                    "max-lg:justify-center",
-                    "justify-center",
+                    "mt-2.5 flex flex-col gap-1 text-[13px] font-semibold text-muted",
+                    "max-lg:items-center",
+                    "items-center",
                   )}
                 >
-                  {c.location && (
-                    <span className="inline-flex items-center gap-1.5">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="size-3.5" aria-hidden="true">
-                        <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
-                      {c.location}
-                    </span>
+                  {/* line 1: location · live-status — the client-facing hierarchy */}
+                  {(c.location || !coldStart) && (
+                    <div className={cx("flex flex-wrap items-center gap-x-4 gap-y-1", "max-lg:justify-center", "justify-center")}>
+                      {c.location && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="size-3.5 text-terra" aria-hidden="true">
+                            <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                          {titleCase(c.location)}
+                        </span>
+                      )}
+                      {!coldStart && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="size-[7px] rounded-full bg-green animate-pulse-dot" />
+                          Replies within 2 hours
+                        </span>
+                      )}
+                    </div>
                   )}
-                  {!coldStart && (
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="size-[7px] rounded-full bg-green animate-pulse-dot" />
-                      Replies within 2 hours
-                    </span>
-                  )}
+                  {/* line 2: languages, on their own row */}
                   {(c.languages?.length ?? 0) > 0 && <span>{c.languages!.join(" · ")}</span>}
                 </div>
               )}
             </div>
           </div>
 
+          {/* cold-start trust layer: the creator's own highlights, sitting
+              directly beneath the identity row and above the bio (max 3) */}
+          {coldStart && (c.highlights?.length ?? 0) > 0 && (
+            <div className={cx("h-anim mt-6 flex flex-wrap gap-2", "max-lg:justify-center", "justify-center")} style={{ animationDelay: "0.12s" }}>
+              {c.highlights!.slice(0, 3).map((h) => (
+                <span key={h} className="rounded-full border border-line bg-paper px-3.5 py-2 text-[13px] font-bold text-ink-2 shadow-soft">
+                  {h}
+                </span>
+              ))}
+            </div>
+          )}
+
           {c.bio && (
             <p
               className="h-anim mt-7 max-w-[540px] text-[clamp(19px,2.2vw,24px)] font-medium leading-snug text-ink-2"
-              style={{ animationDelay: "0.15s" }}
+              style={{ animationDelay: "0.18s" }}
             >
               {c.bio}
             </p>
           )}
 
-          {/* trust metrics — or, before any real bookings, the creator's own highlights */}
-          {coldStart ? (
-            (c.highlights?.length ?? 0) > 0 && (
-              <div className={cx("h-anim mt-7 flex flex-wrap gap-2", "max-lg:justify-center", "justify-center")} style={{ animationDelay: "0.25s" }}>
-                {c.highlights!.map((h) => (
-                  <span key={h} className="rounded-full border border-line bg-paper px-3.5 py-2 text-[13px] font-bold text-ink-2 shadow-soft">
-                    {h}
-                  </span>
-                ))}
-              </div>
-            )
-          ) : (
+          {/* established creators: real trust metrics where the highlights stood */}
+          {!coldStart && (
             <div className={cx("h-anim mt-7 flex flex-wrap gap-x-9 gap-y-4", "max-lg:justify-center", "justify-center")} style={{ animationDelay: "0.25s" }}>
               {METRICS.map((m) => (
                 <div key={m.label}>

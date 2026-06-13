@@ -64,7 +64,7 @@ function HighlightsInput({ value, onChange }: { value: string[]; onChange: (v: s
             id="highlights"
             className="field"
             maxLength={30}
-            placeholder={value.length === 0 ? "e.g. 5 yrs experience" : value.length === 1 ? "e.g. 120+ clients" : "e.g. Certified NLP coach"}
+            placeholder="e.g. 5+ years experience"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
@@ -78,6 +78,11 @@ function HighlightsInput({ value, onChange }: { value: string[]; onChange: (v: s
             Add
           </button>
         </div>
+      )}
+      {value.length === 0 && (
+        <p className="mt-2 text-[12px] font-medium text-muted">
+          Examples: <span className="font-semibold text-ink-2">5+ years experience</span> · Ex Microsoft · 500+ clients helped · IIT Bombay
+        </p>
       )}
     </div>
   );
@@ -210,6 +215,7 @@ export default function ProfileForm() {
   }
 
   const bioLen = draft.bio.length;
+  const titleLen = draft.title.length;
 
   if (!loaded) {
     return <div className="min-h-[60vh]" aria-busy="true" />;
@@ -249,11 +255,16 @@ export default function ProfileForm() {
           required
           helper="Your one-line credibility. This does the heavy lifting on your page."
           error={show("title")}
+          counter={
+            <span className={`text-[12px] font-bold tabular-nums ${titleLen > 45 ? "text-amber" : "text-faint"}`}>
+              {titleLen}/60
+            </span>
+          }
         >
           <input
             id="title"
             className="field"
-            maxLength={80}
+            maxLength={60}
             placeholder="Career Coach · ex-Head of Talent"
             value={draft.title}
             onChange={(e) => update({ title: e.target.value })}
@@ -286,7 +297,7 @@ export default function ProfileForm() {
         <Field
           id="highlights"
           label="Experience highlights"
-          helper="Up to 3 short chips. These show where stats appear once you have real bookings."
+          helper="Up to 3 short chips — your trust layer until real bookings roll in."
         >
           <HighlightsInput value={draft.highlights} onChange={(v) => update({ highlights: v })} />
         </Field>
