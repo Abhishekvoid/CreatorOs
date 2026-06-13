@@ -178,10 +178,11 @@ describe("processor — idempotency & ordering", () => {
 });
 
 describe("processor — durability & concurrency", () => {
-  it("(5) crash before commit → everything rolls back, event stays unprocessed", async () => {
+  it("(5) crash mid-transaction → full rollback, then a retry succeeds", async () => {
     const s = await seedEvent({ eventType: "payment.captured" });
     const event = await loadClaimable(s.eventId);
 
+    // crash after the transitions are staged but before commit
     await expect(
       withTransaction(async (c) => {
         await applyEvent(c, event);
@@ -189,14 +190,20 @@ describe("processor — durability & concurrency", () => {
       }),
     ).rejects.toThrow("simulated crash");
 
+    // rollback: nothing moved, the event is still unprocessed (and re-claimable)
     expect((await eventRow(s.eventId)).processed).toBe(false);
     expect(await bookingStatus(s.bookingId)).toBe("payment_pending");
     expect(await lockStatusOf(s.bookingId)).toBe("active");
     expect((await orderRow(s.paymentOrderId)).status).toBe("created");
     expect((await notifs(s.bookingId)).length).toBe(0);
 
-    // clean up so the unprocessed event doesn't bleed into the concurrency test
-    await pool.query(`update public.payment_events set processed = true, processed_at = now() where id = $1`, [s.eventId]);
+    // retry: the worker re-claims the same event and completes it cleanly
+    await processPendingEvents();
+    expect((await eventRow(s.eventId)).processed).toBe(true);
+    expect(await bookingStatus(s.bookingId)).toBe("confirmed");
+    expect(await lockStatusOf(s.bookingId)).toBe("confirmed");
+    expect((await orderRow(s.paymentOrderId)).status).toBe("captured");
+    expect((await notifs(s.bookingId)).length).toBe(2);
   });
 
   it("(6) two workers race the same event → claimed and processed exactly once", async () => {
