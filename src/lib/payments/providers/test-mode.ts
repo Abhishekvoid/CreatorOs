@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import Razorpay from "razorpay";
 import { NotImplementedError } from "../errors";
 import type {
@@ -55,9 +55,19 @@ export class TestModeProvider implements PaymentProvider {
     };
   }
 
-  // ---- placeholders (real implementations arrive in Phase 4+) ----
-  verifyWebhookSignature(_input: WebhookVerifyInput): boolean {
-    throw new NotImplementedError("TestModeProvider.verifyWebhookSignature");
+  /**
+   * Verify a Razorpay webhook: HMAC-SHA256 of the RAW body keyed by
+   * RAZORPAY_WEBHOOK_SECRET, constant-time compared to the supplied signature.
+   * No secret (or no signature) means we cannot vouch for authenticity, so we
+   * return false — the ingestor rejects with 400 and persists nothing.
+   */
+  verifyWebhookSignature(input: WebhookVerifyInput): boolean {
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    if (!secret || !input.signature) return false;
+    const expected = createHmac("sha256", secret).update(input.payload).digest("hex");
+    const a = Buffer.from(expected);
+    const b = Buffer.from(input.signature);
+    return a.length === b.length && timingSafeEqual(a, b);
   }
 
   async getOrderStatus(_orderId: string): Promise<ProviderOrderStatus> {
