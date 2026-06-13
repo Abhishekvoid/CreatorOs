@@ -8,6 +8,8 @@ export { ingestWebhook } from "./ingest";
 export type { IngestInput, IngestResult } from "./ingest";
 export { processPendingEvents } from "./processor";
 export type { ProcessSummary } from "./processor";
+export { reconcileSweep } from "./reconcile";
+export type { SweepCounts } from "./reconcile";
 export { getPaymentProvider } from "./provider";
 export type { PaymentProvider } from "./provider";
 export { NotImplementedError, OrderCreationError } from "./errors";

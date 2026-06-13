@@ -21,17 +21,21 @@ import type {
  * test order so the booking flow is exercisable end-to-end without a network
  * dependency. The remaining methods are honest placeholders until Phase 4+.
  */
+/** A Razorpay SDK client when keys are configured, else null (keyless test mode). */
+function razorpayClient(): Razorpay | null {
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  return keyId && keySecret ? new Razorpay({ key_id: keyId, key_secret: keySecret }) : null;
+}
+
 export class TestModeProvider implements PaymentProvider {
   getProviderName(): string {
     return "razorpay_test";
   }
 
   async createOrder(input: CreateOrderInput): Promise<ProviderOrder> {
-    const keyId = process.env.RAZORPAY_KEY_ID;
-    const keySecret = process.env.RAZORPAY_KEY_SECRET;
-
-    if (keyId && keySecret) {
-      const client = new Razorpay({ key_id: keyId, key_secret: keySecret });
+    const client = razorpayClient();
+    if (client) {
       const order = await client.orders.create({
         amount: input.amountPaise,
         currency: input.currency,
@@ -70,12 +74,30 @@ export class TestModeProvider implements PaymentProvider {
     return a.length === b.length && timingSafeEqual(a, b);
   }
 
-  async getOrderStatus(_orderId: string): Promise<ProviderOrderStatus> {
-    throw new NotImplementedError("TestModeProvider.getOrderStatus");
+  /**
+   * Fetch live order state from Razorpay (the reconciliation source of truth).
+   * Returns the provider's native status token ('created' | 'attempted' |
+   * 'paid'); the sweep's classifier interprets it. Keyless mode has no real
+   * order to fetch, so it cannot reconcile and throws.
+   */
+  async getOrderStatus(orderId: string): Promise<ProviderOrderStatus> {
+    const client = razorpayClient();
+    if (!client) throw new NotImplementedError("TestModeProvider.getOrderStatus (no Razorpay keys)");
+    const order = await client.orders.fetch(orderId);
+    return { orderId: order.id, status: String(order.status), amountPaise: Number(order.amount) };
   }
 
-  async getPaymentStatus(_paymentId: string): Promise<ProviderPaymentStatus> {
-    throw new NotImplementedError("TestModeProvider.getPaymentStatus");
+  /** Fetch live payment state from Razorpay (status 'captured' | 'failed' | …). */
+  async getPaymentStatus(paymentId: string): Promise<ProviderPaymentStatus> {
+    const client = razorpayClient();
+    if (!client) throw new NotImplementedError("TestModeProvider.getPaymentStatus (no Razorpay keys)");
+    const payment = await client.payments.fetch(paymentId);
+    return {
+      paymentId: payment.id,
+      orderId: (payment.order_id as string | null) ?? null,
+      status: String(payment.status),
+      amountPaise: Number(payment.amount),
+    };
   }
 
   async refundPayment(_input: RefundInput): Promise<ProviderRefund> {
