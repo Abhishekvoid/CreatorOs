@@ -76,7 +76,7 @@ export async function saveServiceDraft(
   if (opts?.complete) {
     if (!draft.title.trim()) return { success: false, error: "Title is required" };
     if (!draft.description.trim()) return { success: false, error: "Description is required" };
-    if (draft.pricePaise < 4900) return { success: false, error: "Minimum price is ₹49" };
+    if (draft.pricePaise < 4900) return { success: false, error: "Minimum price is ₹1" };
     if (draft.compareAtPaise != null && draft.compareAtPaise <= draft.pricePaise)
       return { success: false, error: "Compare-at price must be higher than the price" };
     if (!/^https?:\/\/.+\..+/.test(draft.meetingLink.trim()))
