@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ProfileHeader, { type ProfileHeaderData } from "@/components/profile/ProfileHeader";
+import ProfileHeader, {
+  type ProfileHeaderData,
+} from "@/components/profile/ProfileHeader";
 import ServiceCard from "@/components/public-profile/ServiceCard";
 import ServicesList from "@/components/public-profile/ServicesList";
 import { LogoMark } from "@/components/ui";
@@ -21,8 +23,13 @@ const SOCIAL_LABELS: Record<string, string> = {
   x: "X",
 };
 
-export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ handle: string }>;
+}): Promise<Metadata> {
   const { handle } = await params;
+  console.log("CreatorPage handle:", handle);
   const page = await loadCreatorPage(handle);
   if (!page) return { title: "Not found | CreatorOS" };
   const { creator } = page;
@@ -32,10 +39,17 @@ export async function generateMetadata({ params }: { params: Promise<{ handle: s
   };
 }
 
-export default async function CreatorPage({ params }: { params: Promise<{ handle: string }> }) {
+export default async function CreatorPage({
+  params,
+}: {
+  params: Promise<{ handle: string }>;
+}) {
   const { handle } = await params;
   const page = await loadCreatorPage(handle);
-  if (!page) notFound();
+
+  if (!page) {
+    throw new Error(`Creator not found for handle: ${handle}`);
+  }
 
   const { creator, services } = page;
   const headerData: ProfileHeaderData = {
@@ -57,7 +71,11 @@ export default async function CreatorPage({ params }: { params: Promise<{ handle
         <ProfileHeader
           creator={headerData}
           coldStart
-          serviceSlot={services[0] ? <ServiceCard handle={handle} service={services[0]} featured /> : undefined}
+          serviceSlot={
+            services[0] ? (
+              <ServiceCard handle={handle} service={services[0]} featured />
+            ) : undefined
+          }
         />
         <ServicesList handle={handle} services={services} />
       </main>
