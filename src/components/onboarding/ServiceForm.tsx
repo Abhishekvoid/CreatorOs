@@ -15,7 +15,7 @@ const ICON_CHOICES = [
   "Briefcase", "Heart", "Music", "Palette", "Calculator", "Globe",
 ];
 const DURATIONS = [15, 30, 45, 60, 90];
-const MIN_PRICE_PAISE = 49 * 100;
+const MIN_PRICE_PAISE = 1 * 100;
 
 export function emptyServiceDraft(): ServiceDraft {
   return {
@@ -92,9 +92,9 @@ export default function ServiceForm({
     description: !draft.description.trim() ? "A short description is required." : null,
     price:
       draft.pricePaise <= 0
-        ? "Set your price — minimum ₹49."
+        ? "Set your price — minimum ₹1."
         : draft.pricePaise < MIN_PRICE_PAISE
-          ? "Minimum price is ₹49."
+          ? "Minimum price is ₹1."
           : null,
     compareAt:
       draft.compareAtPaise != null && draft.compareAtPaise <= draft.pricePaise

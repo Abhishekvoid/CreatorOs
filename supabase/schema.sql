@@ -459,3 +459,56 @@ begin
   end loop;
 end;
 $$;
+
+-- ============================================================
+-- Part 9 — Payment Setup & Route readiness (additive, idempotent)
+--
+-- The creator-facing payment ONBOARDING profile. This is NOT part of the
+-- frozen money infrastructure above (those six tables are service-role only
+-- and the Processor owns their state). This row is owned and read by the
+-- creator themselves during onboarding to track Razorpay Route readiness.
+--
+-- Razorpay Route is not live yet: client payments work, but creators cannot
+-- receive payouts. status starts (and today only ever is) 'not_started'; the
+-- other four states exist so the UI/state machine needs no rewrite when Route
+-- onboarding ships. payouts_enabled is the single source of truth for whether
+-- a creator can actually receive money — false until Route goes live.
+-- ============================================================
+create table if not exists public.creator_payment_profiles (
+  id uuid primary key default gen_random_uuid(),
+  creator_id uuid not null unique references public.profiles (id) on delete cascade,
+  status text not null default 'not_started'
+    check (status in (
+      'not_started', 'pending_route', 'pending_verification', 'active', 'rejected'
+    )),
+  route_account_id text,
+  kyc_status text,
+  payouts_enabled boolean not null default false,
+  -- backs the "Notify me when payouts launch" CTA; null = not opted in
+  notify_requested_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+-- creator_id is already unique (one profile per creator); this index serves
+-- the status reporting query the future Route rollout will run.
+create index if not exists creator_payment_profiles_status_idx
+  on public.creator_payment_profiles (status);
+
+drop trigger if exists creator_payment_profiles_set_updated_at on public.creator_payment_profiles;
+create trigger creator_payment_profiles_set_updated_at
+  before update on public.creator_payment_profiles
+  for each row execute function public.set_updated_at();
+
+-- RLS — owner-scoped and PRIVATE. Unlike services/availability (publicly
+-- readable for the public profile page), payment status is the creator's own
+-- business: no public select policy. Same ownership predicate otherwise.
+alter table public.creator_payment_profiles enable row level security;
+drop policy if exists "Owners read own payment profile" on public.creator_payment_profiles;
+create policy "Owners read own payment profile" on public.creator_payment_profiles
+  for select using (auth.uid() = creator_id);
+drop policy if exists "Owners insert own payment profile" on public.creator_payment_profiles;
+create policy "Owners insert own payment profile" on public.creator_payment_profiles
+  for insert with check (auth.uid() = creator_id);
+drop policy if exists "Owners update own payment profile" on public.creator_payment_profiles;
+create policy "Owners update own payment profile" on public.creator_payment_profiles
+  for update using (auth.uid() = creator_id) with check (auth.uid() = creator_id);
