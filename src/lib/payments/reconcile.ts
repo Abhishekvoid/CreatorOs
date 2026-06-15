@@ -1,4 +1,5 @@
 import type { PoolClient } from "pg";
+import { expireToReconciliation } from "@/lib/booking";
 import { pgErrorCode, withTransaction } from "@/lib/db/pool";
 import {
   getPaymentProvider,
@@ -127,4 +128,27 @@ export async function reconcileSweep(
   }
 
   return counts;
+}
+
+export type ReconcileTickCounts = SweepCounts & { expired: number };
+
+/**
+ * One reconciliation tick = the two timer-driven steps the cron must run in
+ * order: FIRST age expired holds (active → pending_reconciliation) via
+ * expireToReconciliation, THEN sweep those targets against the provider.
+ *
+ * The reconcile cron calls THIS, never reconcileSweep directly. The sweep only
+ * looks at locks already in pending_reconciliation, so without the expire step
+ * an abandoned hold's lock stays `active` forever — its slot never reconciles
+ * and stays permanently blocked, and the booking is stuck `payment_pending`.
+ * Keeping both steps here preserves Rule 5 (timer expiry never frees a slot; it
+ * only moves the lock to pending_reconciliation for the sweep + processor to
+ * resolve) and keeps the route a thin adapter.
+ */
+export async function reconcileTick(
+  opts: { provider?: PaymentProvider; limit?: number } = {},
+): Promise<ReconcileTickCounts> {
+  const { expired } = await expireToReconciliation();
+  const counts = await reconcileSweep(opts);
+  return { ...counts, expired: expired.length };
 }

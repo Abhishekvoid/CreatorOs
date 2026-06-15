@@ -18,6 +18,30 @@ export function makePool(): Pool {
 }
 
 /**
+ * Safety interlock. applySchema DROPs and recreates the public schema, which is
+ * catastrophic if DB_URL ever points at a real deployment — and SUPABASE_DB_URL
+ * is a production DSN in .env.local. Refuse to run the destructive reset unless
+ * the target host is local (loopback) or the operator has explicitly opted in
+ * via ALLOW_DESTRUCTIVE_TEST_DB=1. Never set that flag against production.
+ */
+const LOCAL_DB_HOSTS = new Set(["127.0.0.1", "localhost", "::1", "0.0.0.0"]);
+
+function assertDestructiveResetAllowed(url: string): void {
+  let host: string;
+  try {
+    host = new URL(url).hostname;
+  } catch {
+    host = "";
+  }
+  if (LOCAL_DB_HOSTS.has(host) || process.env.ALLOW_DESTRUCTIVE_TEST_DB === "1") return;
+  throw new Error(
+    `Refusing to DROP/recreate the public schema against non-local DB host "${host}". ` +
+      `tests/db/* reset the database destructively. Point SUPABASE_DB_URL at a local Postgres ` +
+      `(e.g. supabase start), or set ALLOW_DESTRUCTIVE_TEST_DB=1 to override — NEVER against production.`,
+  );
+}
+
+/**
  * Apply the whole schema to a pristine `public`. We reset the schema first
  * because parts of schema.sql (the original profiles policies) use bare
  * `create policy` and aren't re-runnable from an already-applied state.
@@ -25,6 +49,7 @@ export function makePool(): Pool {
  * reset is safe and gives every run a clean, deterministic database.
  */
 export async function applySchema(pool: Pool): Promise<void> {
+  assertDestructiveResetAllowed(DB_URL);
   await pool.query(`
     drop schema if exists public cascade;
     create schema public;
