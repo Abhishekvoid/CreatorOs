@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import type { Pool } from "pg";
 import { initiate, processPendingEvents } from "@/lib/payments";
-import { reconcileSweep } from "@/lib/payments/reconcile";
+import { reconcileSweep, reconcileTick } from "@/lib/payments/reconcile";
 import type { PaymentProvider } from "@/lib/payments";
 import { applySchema, makePool, seedCreator, uniqueSlot } from "./helpers";
 
@@ -174,5 +174,51 @@ describe("reconcile — determinism & safety", () => {
     expect(await bookingStatus(s.bookingId)).toBe("payment_pending");
     expect(await lockStatusOf(s.bookingId)).toBe("pending_reconciliation");
     expect(await orderStatus(s.paymentOrderId)).toBe("created");
+  });
+});
+
+/**
+ * Regression: the reconcile cron must age expired holds before sweeping. An
+ * abandoned checkout leaves an `active` lock that the sweep alone never sees,
+ * so the slot would stay blocked forever (the production incident that left 7
+ * expired-active locks). reconcileTick wires expireToReconciliation → sweep so
+ * the full active(expired) → pending_reconciliation → event → confirmed/cancelled
+ * chain runs from a single cron call.
+ */
+describe("reconcileTick — expired active holds are aged then swept", () => {
+  /** Booking + lock(active, already expired) + order(created) — the abandoned-hold shape. */
+  async function seedExpiredActive(): Promise<{ bookingId: string; paymentOrderId: string }> {
+    const creator = await seedCreator(pool);
+    const slot = uniqueSlot();
+    const out = await initiate({ creatorId: creator, slotStart: slot.start, slotEnd: slot.end, amountPaise: 149900 });
+    // backdate the 10-minute hold so the timer treats it as lapsed
+    await pool.query(
+      `update public.booking_locks set expires_at = now() - interval '1 minute' where booking_id = $1`,
+      [out.bookingId],
+    );
+    return { bookingId: out.bookingId, paymentOrderId: out.paymentOrderId };
+  }
+
+  it("(8) expired active lock → tick ages it, sweeps it, processor confirms", async () => {
+    const s = await seedExpiredActive();
+    const counts = await reconcileTick({ provider: fakeProvider("paid") });
+    expect(counts).toMatchObject({ expired: 1, examined: 1, captured: 1 });
+    expect(await lockStatusOf(s.bookingId)).toBe("pending_reconciliation");
+
+    await processPendingEvents();
+    expect(await bookingStatus(s.bookingId)).toBe("confirmed");
+    expect(await lockStatusOf(s.bookingId)).toBe("confirmed");
+    expect(await orderStatus(s.paymentOrderId)).toBe("captured");
+  });
+
+  it("(9) a still-live active lock is NOT aged or swept (TTL respected)", async () => {
+    const creator = await seedCreator(pool);
+    const slot = uniqueSlot();
+    const out = await initiate({ creatorId: creator, slotStart: slot.start, slotEnd: slot.end, amountPaise: 149900 });
+    // expires_at defaults ~10 min in the future → not yet lapsed
+    const counts = await reconcileTick({ provider: fakeProvider("paid") });
+    expect(counts).toMatchObject({ expired: 0, examined: 0 });
+    expect(await lockStatusOf(out.bookingId)).toBe("active");
+    expect(await events(out.paymentOrderId)).toHaveLength(0);
   });
 });
