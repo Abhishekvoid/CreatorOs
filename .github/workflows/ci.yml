@@ -1,0 +1,65 @@
+# CI: run the DB test suite (incl. the reconcileTick regression) against a
+# throwaway Postgres service container. Turns the reconciliation fix from
+# "audited" into "automatically verified" on every PR.
+#
+# Safety: SUPABASE_DB_URL is hardcoded to loopback below and references NO
+# secret, so a production DSN cannot enter CI. Two further backstops enforce it:
+# the "Guard" step, and the assertDestructiveResetAllowed() interlock in
+# tests/db/helpers.ts (refuses the destructive schema reset off-loopback).
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [fix/reconcile-tick-and-scheduler]
+  workflow_dispatch: {}
+
+jobs:
+  db-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17 # matches supabase/config.toml major_version
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Loopback only. NEVER a secret → a production DSN cannot be injected here.
+      SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Guard — refuse any non-loopback DSN
+        run: |
+          case "$SUPABASE_DB_URL" in
+            *@127.0.0.1:*|*@localhost:*) echo "OK: loopback DSN" ;;
+            *) echo "::error::SUPABASE_DB_URL is not loopback — refusing to run"; exit 1 ;;
+          esac
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Bootstrap Supabase primitives (CI-only shim)
+        run: |
+          node -e "const fs=require('fs');const{Client}=require('pg');(async()=>{const c=new Client({connectionString:process.env.SUPABASE_DB_URL});await c.connect();await c.query(fs.readFileSync('ci/ci-bootstrap.sql','utf8'));await c.end();console.log('bootstrap ok');})().catch(e=>{console.error(e);process.exit(1);});"
+
+      - name: Run DB test suite
+        # vitest run exits non-zero on any failure → this step (and the job) fails.
+        run: npm test
