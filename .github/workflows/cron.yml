@@ -1,0 +1,40 @@
+# Free fallback scheduler for the CreatorOS cron endpoints.
+#
+# Upstash QStash (see scripts/qstash/create-schedules.sh) is the primary, with
+# per-minute cadence + retries/DLQ. This GitHub Actions workflow is a $0 backup
+# at ~5-minute granularity (GitHub's scheduled-workflow minimum, and runs may be
+# delayed/dropped under load — do NOT rely on it as the sole hot-path driver).
+#
+# Setup: repo Settings → Secrets and variables → Actions →
+#   CRON_SECRET   = same value as the Vercel env var
+#   DEPLOY_ORIGIN = https://creator-os-one-coral.vercel.app
+#
+# The workers are idempotent, so overlap with QStash is harmless.
+name: cron
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {} # allow manual recovery runs from the Actions tab
+
+concurrency:
+  group: creatoros-cron
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Drive cron endpoints
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          BASE: ${{ secrets.DEPLOY_ORIGIN }}
+        run: |
+          set -euo pipefail
+          for path in process-events notifications reconcile integrity; do
+            echo "→ /api/cron/$path"
+            curl -fsS --max-time 60 \
+              -H "Authorization: Bearer ${CRON_SECRET}" \
+              "${BASE}/api/cron/$path"
+            echo
+          done
