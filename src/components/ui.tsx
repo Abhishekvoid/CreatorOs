@@ -1,33 +1,20 @@
+import { Check as LucideCheck, X as LucideX, Star } from "lucide-react";
+
 export function Check({ className = "mt-px size-[18px] shrink-0 text-green" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.4}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M20 6L9 17l-5-5" />
-    </svg>
-  );
+  return <LucideCheck className={className} strokeWidth={2.4} aria-hidden="true" />;
 }
 
 export function Cross({ className = "mt-px size-[18px] shrink-0 text-faint" }: { className?: string }) {
+  return <LucideX className={className} strokeWidth={2.4} aria-hidden="true" />;
+}
+
+export function RatingStars({ count = 5, className = "size-3.5" }: { count?: number; className?: string }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.4}
-      strokeLinecap="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M18 6L6 18M6 6l12 12" />
-    </svg>
+    <span className="inline-flex items-center gap-px align-middle text-amber" role="img" aria-label={`${count} out of 5 stars`}>
+      {Array.from({ length: count }).map((_, i) => (
+        <Star key={i} className={className} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+      ))}
+    </span>
   );
 }
 
