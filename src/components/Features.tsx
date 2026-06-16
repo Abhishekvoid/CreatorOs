@@ -1,7 +1,8 @@
+import { Hand, Check } from "lucide-react";
 import { ROHIT_AVATAR } from "./persona";
 import Reveal from "./Reveal";
 import SlotRow from "./SlotRow";
-import { Check, SectionHead } from "./ui";
+import { Check as UiCheck, SectionHead } from "./ui";
 
 function FeatureCard({
   delay,
@@ -102,7 +103,7 @@ export default function Features() {
           >
             <div className="flex items-center gap-2.5 rounded-2xl border border-line bg-cream px-3.5 py-3">
               <div className="grid size-[34px] shrink-0 place-items-center rounded-full bg-green-soft text-green">
-                <Check className="size-4 text-green" />
+                <UiCheck className="size-4 text-green" />
               </div>
               <div>
                 <div className="text-sm font-extrabold">₹1,499 · Ananya S.</div>
@@ -153,9 +154,15 @@ export default function Features() {
             micro={["Booking confirmations", "24h + 1h reminders", "Payment nudges", "Review requests"]}
           >
             <div className="max-w-[330px] rounded-2xl rounded-bl-[5px] border border-[#CDEBD9] bg-[#E9F8EF] px-4 py-3 text-[12.5px] font-semibold leading-normal text-[#1D4B33]">
-              Hi Rohit! 👋 Reminder: your <b className="font-extrabold">1:1 Career Strategy Call</b> with Meera is{" "}
+              Hi Rohit! <Hand className="inline size-3.5 align-[-2px] text-[#1D4B33]" strokeWidth={2} aria-hidden="true" /> Reminder: your <b className="font-extrabold">1:1 Career Strategy Call</b> with Meera is{" "}
               <b className="font-extrabold">tomorrow at 11:00 am</b>. Join link: meet.creatoros.in/rohit
-              <div className="mt-1 text-right text-[10px] font-bold text-[#6FA388]">Sent automatically · 10:58 am ✓✓</div>
+              <div className="mt-1 flex items-center justify-end gap-1 text-[10px] font-bold text-[#6FA388]">
+                Sent automatically · 10:58 am
+                <span className="inline-flex -space-x-1">
+                  <Check className="size-3" strokeWidth={3} aria-hidden="true" />
+                  <Check className="size-3" strokeWidth={3} aria-hidden="true" />
+                </span>
+              </div>
             </div>
           </FeatureCard>
         </div>

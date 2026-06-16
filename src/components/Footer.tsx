@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Logo } from "./ui";
+import { Heart } from "lucide-react";
+import { Check, Logo } from "./ui";
 
 const COLS = [
   {
@@ -116,7 +117,11 @@ export default function Footer() {
                 type="submit"
                 className="rounded-full bg-ink px-4.5 py-2 text-[13px] font-bold text-cream transition-transform duration-300 ease-spring hover:scale-104"
               >
-                {subscribed ? "Done ✓" : "Subscribe"}
+                {subscribed ? (
+                  <span className="inline-flex items-center gap-1.5">Done <Check className="size-3.5 text-current" /></span>
+                ) : (
+                  "Subscribe"
+                )}
               </button>
             </form>
           </div>
@@ -133,8 +138,8 @@ export default function Footer() {
               </a>
             ))}
           </div>
-          <p className="text-[13px] font-semibold text-faint">
-            Made with <b className="text-terra">♥</b> in India
+          <p className="inline-flex items-center gap-1 text-[13px] font-semibold text-faint">
+            Made with <Heart className="size-3.5 text-terra" fill="currentColor" strokeWidth={0} aria-hidden="true" /> in India
           </p>
         </div>
       </div>
