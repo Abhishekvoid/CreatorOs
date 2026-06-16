@@ -1,18 +1,19 @@
 import Counter from "./Counter";
 import { ANANYA_AVATAR, MEERA_AVATAR, ROHIT_AVATAR } from "./persona";
 import { VerifiedBadge } from "./ui";
+import { Target, FileText, BookOpen, Star, type LucideIcon } from "lucide-react";
 
 import Link from "next/link";
 
 function ServiceRow({
-  icon,
+  icon: Icon,
   iconBg,
   title,
   meta,
   price,
   note,
 }: {
-  icon: string;
+  icon: LucideIcon;
   iconBg: string;
   title: string;
   meta: string;
@@ -21,7 +22,9 @@ function ServiceRow({
 }) {
   return (
     <div className="mt-2.5 flex cursor-pointer items-center gap-3 rounded-2xl border border-line bg-cream p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-line-2 hover:shadow-soft">
-      <div className={`grid size-9 shrink-0 place-items-center rounded-[11px] text-base ${iconBg}`}>{icon}</div>
+      <div className={`grid size-9 shrink-0 place-items-center rounded-[11px] ${iconBg}`}>
+        <Icon className="size-[18px] text-ink" strokeWidth={2} aria-hidden="true" />
+      </div>
       <div className="min-w-0 flex-1">
         <div className="text-[12.5px] font-bold tracking-tight">{title}</div>
         <div className="text-[10.5px] font-semibold text-faint">{meta}</div>
@@ -195,13 +198,13 @@ export default function Hero() {
               <div className="mt-0.5 text-xs font-medium text-muted">Career coach · Resume to offer letter</div>
               <div className="mt-2.5 flex gap-3.5 text-[11px] font-semibold text-faint">
                 <span><b className="text-[12.5px] text-ink">340+</b> sessions</span>
-                <span><b className="text-[12.5px] text-ink">4.9</b> ★ rating</span>
+                <span className="inline-flex items-center gap-1"><b className="text-[12.5px] text-ink">4.9</b> <Star className="size-3 text-amber" fill="currentColor" strokeWidth={0} aria-hidden="true" /> rating</span>
                 <span><b className="text-[12.5px] text-ink">5 yrs</b> exp</span>
               </div>
             </div>
-            <ServiceRow icon="🎯" iconBg="bg-[#FCE9E1]" title="1:1 Career Strategy Call" meta="45 min · Google Meet" price="₹1,499" note="slots open" />
-            <ServiceRow icon="📄" iconBg="bg-[#FDF3DF]" title="Resume Review" meta="Async · 48 hr delivery" price="₹799" note="popular" />
-            <ServiceRow icon="📘" iconBg="bg-green-soft" title="Interview Prep Kit" meta="Digital download" price="₹499" note="instant" />
+            <ServiceRow icon={Target} iconBg="bg-[#FCE9E1]" title="1:1 Career Strategy Call" meta="45 min · Google Meet" price="₹1,499" note="slots open" />
+            <ServiceRow icon={FileText} iconBg="bg-[#FDF3DF]" title="Resume Review" meta="Async · 48 hr delivery" price="₹799" note="popular" />
+            <ServiceRow icon={BookOpen} iconBg="bg-green-soft" title="Interview Prep Kit" meta="Digital download" price="₹499" note="instant" />
             <div className="mt-3 w-full rounded-full bg-ink py-2.5 text-center text-[13px] font-bold text-cream">
               Book a session →
             </div>
