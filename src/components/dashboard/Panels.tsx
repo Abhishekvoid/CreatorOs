@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { ARJUN_AVATAR, KAVYA_AVATAR, PRIYA_AVATAR, ROHIT_AVATAR, SNEHA_AVATAR } from "../persona";
+import { RatingStars } from "../ui";
 
 function PanelIcon({ d, className = "size-[18px]" }: { d: string; className?: string }) {
   return (
@@ -234,7 +235,7 @@ const ACTIVITY = [
   { dot: "bg-green", text: <>Payment received — <b className="font-semibold text-green-deep">₹1,499</b> from Rohit Sharma</>, time: "2 min ago" },
   { dot: "bg-line-2", text: <>New booking — Priya Nair, <b className="font-semibold">Resume Review</b></>, time: "1 hr ago" },
   { dot: "bg-line-2", text: <>WhatsApp reminder sent to Arjun Mehta</>, time: "3 hrs ago" },
-  { dot: "bg-line-2", text: <>Kavya Reddy left a <b className="font-semibold">★★★★★ review</b></>, time: "Yesterday" },
+  { dot: "bg-line-2", text: <>Kavya Reddy left a <b className="inline-flex items-center gap-1 font-semibold"><RatingStars className="size-3" /> review</b></>, time: "Yesterday" },
   { dot: "bg-line-2", text: <>Calendar invite delivered for Friday&rsquo;s session</>, time: "Yesterday" },
 ];
 

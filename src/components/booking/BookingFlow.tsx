@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import { ARJUN_AVATAR, MEERA_AVATAR, PRIYA_AVATAR, ROHIT_AVATAR } from "../persona";
+import { Target, Zap, CalendarDays, MessageCircle, Repeat, Check, type LucideIcon } from "lucide-react";
 import { VerifiedBadge } from "../ui";
 
 /* ---------------- pricing ---------------- */
@@ -264,8 +265,8 @@ export default function BookingFlow() {
           <section className="rounded-[26px] border border-line bg-paper p-6.5 shadow-soft max-sm:p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex min-w-0 items-start gap-4">
-                <div className="grid size-13 shrink-0 place-items-center rounded-2xl bg-cream-2 text-[24px]">
-                  <span aria-hidden="true">🎯</span>
+                <div className="grid size-13 shrink-0 place-items-center rounded-2xl bg-cream-2">
+                  <Target className="size-6 text-ink" strokeWidth={2} aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2.5">
@@ -293,16 +294,19 @@ export default function BookingFlow() {
               </div>
             </div>
             <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-2.5 border-t border-line pt-4.5 lg:grid-cols-4">
-              {[
-                ["⚡", "Instant confirmation"],
-                ["📅", "Calendar invite sent"],
-                ["💬", "WhatsApp reminders"],
-                ["🔁", "Free rescheduling"],
-              ].map(([icon, text]) => (
-                <div key={text} className="flex items-center gap-2 text-[12.5px] font-medium text-ink-2">
-                  <span aria-hidden="true">{icon}</span> {text}
-                </div>
-              ))}
+              {([
+                { icon: Zap, text: "Instant confirmation" },
+                { icon: CalendarDays, text: "Calendar invite sent" },
+                { icon: MessageCircle, text: "WhatsApp reminders" },
+                { icon: Repeat, text: "Free rescheduling" },
+              ] as { icon: LucideIcon; text: string }[]).map((f) => {
+                const Icon = f.icon;
+                return (
+                  <div key={f.text} className="flex items-center gap-2 text-[12.5px] font-medium text-ink-2">
+                    <Icon className="size-4 shrink-0 text-ink-2" strokeWidth={2} aria-hidden="true" /> {f.text}
+                  </div>
+                );
+              })}
             </div>
           </section>
 
@@ -335,8 +339,8 @@ export default function BookingFlow() {
               title="Pick a time"
               hint={
                 isTodaySelected ? (
-                  <span className="pop-in rounded-full bg-[#FDF3DF] px-3 py-1.5 text-[12px] font-extrabold text-[#9A6A14]">
-                    ⚡ Only 3 slots left today
+                  <span className="pop-in inline-flex items-center gap-1.5 rounded-full bg-[#FDF3DF] px-3 py-1.5 text-[12px] font-extrabold text-[#9A6A14]">
+                    <Zap className="size-3.5" strokeWidth={2.4} aria-hidden="true" /> Only 3 slots left today
                   </span>
                 ) : date ? (
                   <span className="pop-in text-[13px] font-bold text-muted">{dateLabel(date)}</span>
@@ -373,7 +377,7 @@ export default function BookingFlow() {
                               }`}
                             >
                               {s}
-                              {sel && " ✓"}
+                              {sel && <Check className="ml-1 inline size-3.5 align-[-2px]" strokeWidth={3} aria-hidden="true" />}
                             </button>
                           );
                         })}
@@ -530,8 +534,8 @@ export default function BookingFlow() {
 
             <div className="p-6">
               <div className="flex items-center gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-cream-2 text-[17px]" aria-hidden="true">
-                  🎯
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-cream-2" aria-hidden="true">
+                  <Target className="size-[18px] text-ink" strokeWidth={2} />
                 </span>
                 <div className="text-[15px] font-bold tracking-tight">1:1 Career Strategy Call</div>
               </div>
