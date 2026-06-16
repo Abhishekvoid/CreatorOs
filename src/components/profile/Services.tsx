@@ -2,7 +2,7 @@ import Reveal from "../Reveal";
 import SlotRow from "../SlotRow";
 import { SectionHead } from "../ui";
 
-import { Target, FileText, Mic, Compass, NotebookTabs } from "lucide-react";
+import { Target, FileText, Mic, Compass, NotebookTabs, Star } from "lucide-react";
 type Availability = { label: string; tone: "open" | "limited" | "waitlist" };
 
 const SERVICES: {
@@ -137,8 +137,8 @@ export default function Services() {
               <div className="relative grid gap-7 md:grid-cols-[1.15fr_1fr]">
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2.5">
-                    <span className="rounded-full bg-grad px-3 py-1 text-[10.5px] font-extrabold uppercase tracking-wide text-white shadow-[0_4px_14px_-4px_rgba(226,85,44,.6)]">
-                      ★ Most popular
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-grad px-3 py-1 text-[10.5px] font-extrabold uppercase tracking-wide text-white shadow-[0_4px_14px_-4px_rgba(226,85,44,.6)]">
+                      <Star className="size-3 text-white" fill="currentColor" strokeWidth={0} aria-hidden="true" /> Most popular
                     </span>
                     <span className="text-[12px] font-bold text-[#9C968A]">
                       booked 41× this month

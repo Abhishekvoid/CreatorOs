@@ -1,7 +1,8 @@
 import Counter from "../Counter";
 import Reveal from "../Reveal";
+import { RatingStars } from "../ui";
 
-const STATS: { value: React.ReactNode; label: string; note: string }[] = [
+const STATS: { value: React.ReactNode; label: string; note: React.ReactNode }[] = [
   {
     value: (
       <>
@@ -32,7 +33,7 @@ const STATS: { value: React.ReactNode; label: string; note: string }[] = [
   {
     value: "4.9",
     label: "average rating",
-    note: "★★★★★ · 212 reviews",
+    note: <span className="inline-flex items-center gap-1.5"><RatingStars className="size-3" /> · 212 reviews</span>,
   },
 ];
 

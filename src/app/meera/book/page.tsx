@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Star } from "lucide-react";
 import BookingFlow from "@/components/booking/BookingFlow";
 import CheckoutNav from "@/components/booking/CheckoutNav";
 import DemoBanner from "@/components/DemoBanner";
@@ -12,7 +13,7 @@ import { LogoMark, VerifiedBadge } from "@/components/ui";
 export const metadata: Metadata = {
   title: "Book a 1:1 Career Strategy Call with Meera Shah | CreatorOS",
   description:
-    "Pick a slot, pay via UPI and get instant confirmation on WhatsApp. 45-minute career strategy call with Meera Shah — 4.9 ★ from 212 reviews.",
+    "Pick a slot, pay via UPI and get instant confirmation on WhatsApp. 45-minute career strategy call with Meera Shah — rated 4.9 from 212 reviews.",
 };
 
 const BOOKING_FAQ = [
@@ -73,7 +74,7 @@ export default function BookingPage() {
                 <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] font-semibold text-muted">
                   <span className="font-bold text-ink-2">Career Coach</span>
                   <span>
-                    <span className="text-amber">★</span> <b className="text-ink">4.9</b> (212 reviews)
+                    <Star className="inline size-3 align-[-1px] text-amber" fill="currentColor" strokeWidth={0} aria-hidden="true" /> <b className="text-ink">4.9</b> (212 reviews)
                   </span>
                   <span>
                     <b className="text-ink">340+</b> sessions
