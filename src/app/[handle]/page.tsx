@@ -29,7 +29,6 @@ export async function generateMetadata({
   params: Promise<{ handle: string }>;
 }): Promise<Metadata> {
   const { handle } = await params;
-  console.log("CreatorPage handle:", handle);
   const page = await loadCreatorPage(handle);
   if (!page) return { title: "Not found | CreatorOS" };
   const { creator } = page;
@@ -48,7 +47,7 @@ export default async function CreatorPage({
   const page = await loadCreatorPage(handle);
 
   if (!page) {
-    throw new Error(`Creator not found for handle: ${handle}`);
+    notFound();
   }
 
   const { creator, services } = page;
