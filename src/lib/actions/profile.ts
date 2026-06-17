@@ -126,6 +126,7 @@ export async function publishProfile(): Promise<{
   success: boolean;
   error?: string;
   redirectTo?: string;
+  handle?: string;
 }> {
   if (!isSupabaseConfigured) return { success: false, error: "Supabase isn't configured" };
 
@@ -161,7 +162,9 @@ export async function publishProfile(): Promise<{
 
   const { error } = await supabase.from("profiles").update({ is_published: true }).eq("id", user.id);
   if (error) return { success: false, error: error.message };
-  return { success: true };
+  // handle is guaranteed non-null here: the eligibility gate above rejects an
+  // empty handle, so the publish moment can render the real live URL.
+  return { success: true, handle: profile?.handle ?? undefined };
 }
 
 /**

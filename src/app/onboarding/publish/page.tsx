@@ -16,9 +16,11 @@ export const metadata: Metadata = {
  * exact step that fixes it rather than failing generically.
  */
 export default async function OnboardingPublishPage() {
+  let handle: string | undefined;
   if (isSupabaseConfigured) {
     const result = await publishProfile();
     if (!result.success) redirect(result.redirectTo ?? "/onboarding/service");
+    handle = result.handle;
   }
   return (
     <main className="relative grid min-h-screen place-items-center overflow-hidden py-16">
@@ -29,7 +31,7 @@ export default async function OnboardingPublishPage() {
             "radial-gradient(720px 420px at 50% 0%, oklch(94.5% 0.028 165 / 0.6), transparent 60%), radial-gradient(640px 400px at 85% 50%, oklch(95.5% 0.025 45 / 0.7), transparent 60%)",
         }}
       />
-      <PublishMoment />
+      <PublishMoment handle={handle} />
     </main>
   );
 }
