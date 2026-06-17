@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Check } from "lucide-react";
 import { LogoMark } from "@/components/ui";
 
 const STEPS = ["Handle", "Profile", "Service", "Availability", "Payments"];
@@ -33,7 +34,7 @@ export default function WizardHeader({ current }: { current: number }) {
                         : "border border-line-2 text-faint"
                   }`}
                 >
-                  {i < current ? "✓" : i + 1}
+                  {i < current ? <Check className="size-3" strokeWidth={3} aria-hidden="true" /> : i + 1}
                 </span>
                 <span className="max-lg:hidden">{s}</span>
               </span>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Reveal from "./Reveal";
+import { Check } from "./ui";
 
 export default function FinalCta() {
   const [claimed, setClaimed] = useState(false);
@@ -37,7 +38,11 @@ export default function FinalCta() {
                 className="min-w-0 flex-1 bg-transparent px-1 py-2.5 text-[14.5px] font-bold text-ink outline-none placeholder:text-line-2"
               />
               <button type="submit" className="btn btn-grad !px-6 !py-3 !text-[14.5px] max-md:w-full">
-                {claimed ? "Link reserved ✓" : "Claim free link"}
+                {claimed ? (
+                  <span className="inline-flex items-center gap-1.5">Link reserved <Check className="size-4 text-current" /></span>
+                ) : (
+                  "Claim free link"
+                )}
               </button>
             </form>
             <div className="relative z-1 mt-4.5 text-[13px] font-semibold text-[#8E897D]">

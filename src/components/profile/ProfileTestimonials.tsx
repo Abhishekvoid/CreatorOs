@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { ARJUN_AVATAR, KAVYA_AVATAR, PRIYA_AVATAR } from "../persona";
 import Reveal from "../Reveal";
-import { SectionHead } from "../ui";
+import { RatingStars, SectionHead } from "../ui";
 
 const REVIEWS = [
   {
@@ -71,9 +71,7 @@ export default function ProfileTestimonials() {
                     : "border-line bg-paper"
                 }`}
               >
-                <div className="text-[15px] tracking-[0.18em] text-amber" aria-label="5 out of 5 stars">
-                  ★★★★★
-                </div>
+                <RatingStars className="size-3.5" />
                 <p className={`flex-1 text-[15.5px] font-medium leading-relaxed ${r.dark ? "text-[#E8E4D9]" : "text-ink-2"}`}>
                   {r.quote}
                 </p>

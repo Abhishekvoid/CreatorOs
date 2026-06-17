@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MEERA_AVATAR } from "../persona";
+import { Target } from "lucide-react";
 import { VerifiedBadge } from "../ui";
 
 const PRICE = 1499;
@@ -97,8 +98,8 @@ export default function PaymentFlow({ d, t }: { d?: string; t?: string }) {
 
         <div className="p-6">
           <div className="flex items-center gap-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-cream-2 text-[17px]" aria-hidden="true">
-              🎯
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-cream-2" aria-hidden="true">
+              <Target className="size-[18px] text-ink" strokeWidth={2} />
             </span>
             <div className="text-[15px] font-bold tracking-tight">1:1 Career Strategy Call</div>
           </div>

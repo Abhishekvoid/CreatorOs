@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import { TIMELINE_STAGES, type TimelineStage } from "./state";
 
 /**
@@ -46,7 +47,7 @@ export default function PayoutTimeline({ active }: { active: TimelineStage }) {
                       : "border-line-2 bg-paper text-faint"
                 }`}
               >
-                {done ? "✓" : i + 1}
+                {done ? <Check className="size-3.5" strokeWidth={3} aria-hidden="true" /> : i + 1}
               </span>
               {!last && (
                 <span

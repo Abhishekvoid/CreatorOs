@@ -1,9 +1,11 @@
+import { Medal, GraduationCap, Trophy, Star, type LucideIcon } from "lucide-react";
+
 const COMPANIES = ["Google", "Microsoft", "Flipkart", "Razorpay", "Swiggy", "Zerodha"];
 
-const CREDENTIALS = [
-  { icon: "🎖", text: "ICF-ACC Certified Coach" },
-  { icon: "🎓", text: "XLRI Jamshedpur" },
-  { icon: "🏆", text: "Top 1% Mentor, 2025" },
+const CREDENTIALS: { icon: LucideIcon; text: string }[] = [
+  { icon: Medal, text: "ICF-ACC Certified Coach" },
+  { icon: GraduationCap, text: "XLRI Jamshedpur" },
+  { icon: Trophy, text: "Top 1% Mentor, 2025" },
 ];
 
 const PRESS = ["YourStory", "Mint", "The Ken"];
@@ -30,17 +32,20 @@ export default function TrustStrip() {
 
         <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 max-md:justify-center">
           <div className="flex flex-wrap items-center gap-2.5 max-md:justify-center">
-            {CREDENTIALS.map((c) => (
-              <span
-                key={c.text}
-                className="inline-flex items-center gap-2 rounded-full border border-line bg-cream px-3.5 py-1.5 text-[13px] font-bold text-ink-2"
-              >
-                <span aria-hidden="true">{c.icon}</span>
-                {c.text}
-              </span>
-            ))}
+            {CREDENTIALS.map((c) => {
+              const Icon = c.icon;
+              return (
+                <span
+                  key={c.text}
+                  className="inline-flex items-center gap-2 rounded-full border border-line bg-cream px-3.5 py-1.5 text-[13px] font-bold text-ink-2"
+                >
+                  <Icon className="size-3.5 text-ink-2" strokeWidth={2} aria-hidden="true" />
+                  {c.text}
+                </span>
+              );
+            })}
             <span className="inline-flex items-center gap-2 rounded-full border border-line bg-cream px-3.5 py-1.5 text-[13px] font-bold text-ink-2">
-              <span className="text-amber" aria-hidden="true">★</span>
+              <Star className="size-3.5 text-amber" fill="currentColor" strokeWidth={0} aria-hidden="true" />
               4.9 · 212 verified reviews
             </span>
           </div>

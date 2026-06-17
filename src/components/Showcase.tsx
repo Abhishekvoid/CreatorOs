@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ANANYA_AVATAR, PRIYA_AVATAR, ROHIT_AVATAR, VIKRAM_AVATAR } from "./persona";
 import SlotRow from "./SlotRow";
 import { Check, VerifiedBadge } from "./ui";
+import { Dumbbell, Salad, Sun, Star, type LucideIcon } from "lucide-react";
 
 const TABS = [
   { id: "profile", label: "Creator profile" },
@@ -87,23 +88,28 @@ export default function Showcase() {
                   <div className="mt-0.5 text-xs font-medium text-muted">Strength coach · Online + Bengaluru</div>
                   <div className="mt-2.5 flex gap-3.5 text-[11px] font-semibold text-faint">
                     <span><b className="text-[12.5px] text-ink">520+</b> sessions</span>
-                    <span><b className="text-[12.5px] text-ink">4.8</b> ★</span>
+                    <span className="inline-flex items-center gap-1"><b className="text-[12.5px] text-ink">4.8</b> <Star className="size-3 text-amber" fill="currentColor" strokeWidth={0} aria-hidden="true" /></span>
                     <span><b className="text-[12.5px] text-ink">8 yrs</b> exp</span>
                   </div>
                 </div>
                 {[
-                  { icon: "💪", bg: "bg-[#FCE9E1]", title: "1:1 Training Session", meta: "60 min · Online", price: "₹999" },
-                  { icon: "🥗", bg: "bg-[#FDF3DF]", title: "Nutrition Plan", meta: "Monthly · PDF + check-ins", price: "₹2,499" },
-                ].map((s) => (
-                  <div key={s.title} className="mt-2.5 flex items-center gap-3 rounded-2xl border border-line bg-cream p-3">
-                    <div className={`grid size-9 shrink-0 place-items-center rounded-[11px] text-base ${s.bg}`}>{s.icon}</div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[12.5px] font-bold tracking-tight">{s.title}</div>
-                      <div className="text-[10.5px] font-semibold text-faint">{s.meta}</div>
+                  { icon: Dumbbell as LucideIcon, bg: "bg-[#FCE9E1]", title: "1:1 Training Session", meta: "60 min · Online", price: "₹999" },
+                  { icon: Salad as LucideIcon, bg: "bg-[#FDF3DF]", title: "Nutrition Plan", meta: "Monthly · PDF + check-ins", price: "₹2,499" },
+                ].map((s) => {
+                  const Icon = s.icon;
+                  return (
+                    <div key={s.title} className="mt-2.5 flex items-center gap-3 rounded-2xl border border-line bg-cream p-3">
+                      <div className={`grid size-9 shrink-0 place-items-center rounded-[11px] ${s.bg}`}>
+                        <Icon className="size-[18px] text-ink" strokeWidth={2} aria-hidden="true" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[12.5px] font-bold tracking-tight">{s.title}</div>
+                        <div className="text-[10.5px] font-semibold text-faint">{s.meta}</div>
+                      </div>
+                      <div className="text-[13px] font-extrabold">{s.price}</div>
                     </div>
-                    <div className="text-[13px] font-extrabold">{s.price}</div>
-                  </div>
-                ))}
+                  );
+                })}
                 <div className="mt-3 w-full rounded-full bg-ink py-2.5 text-center text-[13px] font-bold text-cream">
                   Book a session →
                 </div>
@@ -173,8 +179,8 @@ export default function Showcase() {
                     </span>
                   ))}
                 </div>
-                <div className="rounded-[10px] bg-green-soft p-2.5 text-xs font-bold text-green-deep">
-                  ✓ 100% goes to the creator · 0% platform fee
+                <div className="flex items-center justify-center gap-1.5 rounded-[10px] bg-green-soft p-2.5 text-xs font-bold text-green-deep">
+                  <Check className="size-3.5 shrink-0 text-green-deep" /> 100% goes to the creator · 0% platform fee
                 </div>
               </div>
             </div>
@@ -196,7 +202,7 @@ export default function Showcase() {
             <div className="flex justify-center max-md:order-first">
               <div className="w-full max-w-[520px] overflow-hidden rounded-[22px] border border-line bg-paper shadow-pop">
                 <div className="flex items-center justify-between border-b border-line px-4.5 py-3.5">
-                  <b className="text-[13.5px] tracking-tight">Good morning, Meera ☀️</b>
+                  <b className="inline-flex items-center gap-1.5 text-[13.5px] tracking-tight">Good morning, Meera <Sun className="size-3.5 text-amber" strokeWidth={2} aria-hidden="true" /></b>
                   <span className="text-[11px] font-bold text-faint">Wed, 11 June</span>
                 </div>
                 <div className="p-4.5">

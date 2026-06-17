@@ -1,3 +1,4 @@
+import { Star } from "lucide-react";
 import Reveal from "./Reveal";
 import { Check, Cross, SectionHead } from "./ui";
 
@@ -65,8 +66,8 @@ export default function Pricing() {
           {/* Founding (highlighted) */}
           <Reveal delay={80}>
             <div className="relative flex h-full flex-col rounded-[30px] border border-[#2E2A21] bg-linear-170 from-[#211E17] to-[#191712] px-7.5 py-8.5 text-cream shadow-pop lg:scale-[1.035] z-1 transition-all duration-400 hover:-translate-y-1.5">
-              <div className="absolute -top-[15px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-grad px-4.5 py-[7px] text-[11.5px] font-extrabold uppercase tracking-wide text-white shadow-[0_6px_18px_-4px_rgba(226,85,44,.55)]">
-                ★ Founding member — price locked forever
+              <div className="absolute -top-[15px] left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-grad px-4.5 py-[7px] text-[11.5px] font-extrabold uppercase tracking-wide text-white shadow-[0_6px_18px_-4px_rgba(226,85,44,.55)]">
+                <Star className="size-3 text-white" fill="currentColor" strokeWidth={0} aria-hidden="true" /> Founding member — price locked forever
               </div>
               <div className="text-[17px] font-extrabold tracking-tight">Founding</div>
               <div className="mb-5 mt-1 text-[13px] font-semibold text-[#9C968A]">For creators ready to go full-time</div>

@@ -17,7 +17,7 @@ import TrustStrip from "@/components/profile/TrustStrip";
 export const metadata: Metadata = {
   title: "Meera Shah — Career Coach · Book a session | CreatorOS",
   description:
-    "Book a 1:1 career strategy call, resume review or mock interview with Meera Shah. 340+ sessions, 4.9 ★ rating, 120+ clients helped. Pay via UPI, instant confirmation.",
+    "Book a 1:1 career strategy call, resume review or mock interview with Meera Shah. 340+ sessions, rated 4.9, 120+ clients helped. Pay via UPI, instant confirmation.",
 };
 
 export default function MeeraProfile() {

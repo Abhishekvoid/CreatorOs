@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { MEERA_AVATAR } from "../persona";
-import { VerifiedBadge } from "../ui";
+import { Check, VerifiedBadge } from "../ui";
 
 const MEET_LINK = "https://meet.google.com/kzr-vqpd-hub";
 
@@ -50,8 +50,8 @@ export default function BookingSuccess({ d, t, id = "CR-DEMO42" }: { d?: string;
             </div>
             <div className="truncate text-[12px] font-semibold text-muted">1:1 Career Strategy Call · 45 min</div>
           </div>
-          <span className="ml-auto shrink-0 rounded-full bg-green-soft px-2.5 py-1 text-[11px] font-extrabold text-green-deep">
-            Paid ✓
+          <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full bg-green-soft px-2.5 py-1 text-[11px] font-extrabold text-green-deep">
+            Paid <Check className="size-3 text-green-deep" />
           </span>
         </div>
 

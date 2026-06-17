@@ -1,12 +1,13 @@
 import Reveal from "./Reveal";
 import { Check, LogoMark, SectionHead } from "./ui";
+import { Link2, CalendarDays, BadgePercent, Smartphone, Table2, type LucideIcon } from "lucide-react";
 
-const OLD_TOOLS = [
-  { icon: "🔗", name: "Link-in-bio tool", role: "Pretty links, zero revenue", cost: "₹420/mo", costNote: "and counting" },
-  { icon: "📅", name: "Scheduling tool", role: "Bookings, but no payments", cost: "₹830/mo", costNote: "per seat" },
-  { icon: "💸", name: "Monetization platform", role: "Takes a cut of every session", cost: "10–20%", costNote: "of your income" },
-  { icon: "📲", name: "Manual UPI collection", role: "“Payment done?” screenshots", cost: "Untracked", costNote: "chaos" },
-  { icon: "📊", name: "Spreadsheet CRM", role: "Client history, lost weekly", cost: "Hours", costNote: "every week" },
+const OLD_TOOLS: { icon: LucideIcon; name: string; role: string; cost: string; costNote: string }[] = [
+  { icon: Link2, name: "Link-in-bio tool", role: "Pretty links, zero revenue", cost: "₹420/mo", costNote: "and counting" },
+  { icon: CalendarDays, name: "Scheduling tool", role: "Bookings, but no payments", cost: "₹830/mo", costNote: "per seat" },
+  { icon: BadgePercent, name: "Monetization platform", role: "Takes a cut of every session", cost: "10–20%", costNote: "of your income" },
+  { icon: Smartphone, name: "Manual UPI collection", role: "“Payment done?” screenshots", cost: "Untracked", costNote: "chaos" },
+  { icon: Table2, name: "Spreadsheet CRM", role: "Client history, lost weekly", cost: "Hours", costNote: "every week" },
 ];
 
 const NEW_FEATS = [
@@ -34,19 +35,24 @@ export default function Replace() {
         <div className="grid items-center gap-[clamp(20px,4vw,48px)] lg:grid-cols-[1fr_auto_1fr] max-lg:gap-7">
           {/* old fragmented stack */}
           <Reveal className="flex w-full flex-col gap-3 max-lg:mx-auto max-lg:max-w-[520px]">
-            {OLD_TOOLS.map((t) => (
-              <div key={t.name} className="old-tool flex items-center gap-3.5 rounded-2xl border border-line bg-cream px-4.5 py-[15px]">
-                <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-line bg-paper text-[17px]">{t.icon}</div>
-                <div>
-                  <div className="text-[14.5px] font-extrabold tracking-tight">{t.name}</div>
-                  <div className="text-xs font-semibold text-faint">{t.role}</div>
+            {OLD_TOOLS.map((t) => {
+              const Icon = t.icon;
+              return (
+                <div key={t.name} className="old-tool flex items-center gap-3.5 rounded-2xl border border-line bg-cream px-4.5 py-[15px]">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-line bg-paper">
+                    <Icon className="size-[19px] text-ink-2" strokeWidth={2} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <div className="text-[14.5px] font-extrabold tracking-tight">{t.name}</div>
+                    <div className="text-xs font-semibold text-faint">{t.role}</div>
+                  </div>
+                  <div className="ml-auto whitespace-nowrap text-right text-[12.5px] font-extrabold text-terra-deep">
+                    {t.cost}
+                    <small className="block text-[10.5px] font-semibold text-faint">{t.costNote}</small>
+                  </div>
                 </div>
-                <div className="ml-auto whitespace-nowrap text-right text-[12.5px] font-extrabold text-terra-deep">
-                  {t.cost}
-                  <small className="block text-[10.5px] font-semibold text-faint">{t.costNote}</small>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </Reveal>
 
           <Reveal delay={80} className="grid place-items-center text-faint">

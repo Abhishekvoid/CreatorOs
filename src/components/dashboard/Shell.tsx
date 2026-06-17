@@ -3,8 +3,9 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Hand, Command } from "lucide-react";
 import { ABHISHEK_AVATAR } from "../persona";
-import { LogoMark } from "../ui";
+import { LogoMark, RatingStars } from "../ui";
 
 /* ---------------- icons (single stroke vocabulary) ---------------- */
 function Icon({ d, className = "size-[18px]" }: { d: string; className?: string }) {
@@ -111,7 +112,7 @@ const NOTIFICATIONS = [
   {
     icon: "clients" as const,
     tint: "bg-[#FDF3DF] text-[#9A6A14]",
-    title: "New review ★★★★★",
+    title: <>New review <RatingStars className="size-3" /></>,
     desc: "Kavya Reddy left a 5-star review on Resume Review.",
     time: "Yesterday",
     unread: false,
@@ -238,7 +239,11 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
           <div className="min-w-0 max-md:hidden">
             <div className="truncate text-[15.5px] font-extrabold tracking-tight">
-              {now ? `${greeting}, Abhishek 👋` : "Welcome back 👋"}
+              {now ? (
+                <span className="inline-flex items-center gap-1.5">{greeting}, Abhishek <Hand className="size-4 text-amber" strokeWidth={2} aria-hidden="true" /></span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5">Welcome back <Hand className="size-4 text-amber" strokeWidth={2} aria-hidden="true" /></span>
+              )}
             </div>
             <div className="text-[11.5px] font-semibold text-muted">{dateLabel ?? " "}</div>
           </div>
@@ -251,8 +256,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 placeholder="Search bookings, clients…"
                 className="min-w-0 flex-1 bg-transparent text-[13px] font-semibold text-ink outline-none placeholder:text-muted"
               />
-              <kbd className="rounded-md border border-line bg-cream px-1.5 py-0.5 text-[10.5px] font-bold text-faint max-sm:hidden">
-                ⌘K
+              <kbd className="inline-flex items-center gap-0.5 rounded-md border border-line bg-cream px-1.5 py-0.5 text-[10.5px] font-bold text-faint max-sm:hidden">
+                <Command className="size-3" strokeWidth={2} aria-hidden="true" />K
               </kbd>
             </label>
           </div>
@@ -329,7 +334,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         <div className="flex-1 overflow-y-auto">
           {NOTIFICATIONS.map((n) => (
             <button
-              key={n.title}
+              key={n.desc}
               className="flex w-full items-start gap-3 border-b border-line px-5 py-4 text-left transition-colors duration-200 hover:bg-cream"
             >
               <span className={`grid size-9 shrink-0 place-items-center rounded-xl ${n.tint}`}>

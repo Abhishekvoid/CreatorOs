@@ -1,5 +1,6 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { useState } from "react";
 
 export type Slot = { time: string; taken?: boolean };
@@ -18,7 +19,7 @@ export default function SlotRow({ slots, initial }: { slots: Slot[]; initial: nu
           className={`slot ${s.taken ? "slot-taken" : ""} ${selected === i ? "slot-sel" : ""}`}
         >
           {s.time}
-          {selected === i && " ✓"}
+          {selected === i && <Check className="ml-1 inline size-3.5 align-[-2px]" strokeWidth={3} aria-hidden="true" />}
         </button>
       ))}
     </div>

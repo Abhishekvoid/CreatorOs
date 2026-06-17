@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { Star } from "lucide-react";
 import { MEERA_AVATAR, MEERA_CREDENTIAL } from "../persona";
 import SlotRow from "../SlotRow";
 import { VerifiedBadge } from "../ui";
@@ -28,9 +29,9 @@ export type ProfileHeaderData = {
   socials?: { label: string; href: string }[];
 };
 
-const METRICS = [
+const METRICS: { value: React.ReactNode; label: string }[] = [
   { value: "340+", label: "sessions" },
-  { value: "4.9 ★", label: "212 reviews" },
+  { value: <span className="inline-flex items-center gap-1">4.9 <Star className="size-3.5 text-amber" fill="currentColor" strokeWidth={0} aria-hidden="true" /></span>, label: "212 reviews" },
   { value: "120+", label: "clients helped" },
   { value: "5 yrs", label: "experience" },
 ];
@@ -331,8 +332,8 @@ export default function ProfileHeader({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <span className="rounded-full bg-grad px-2.5 py-1 text-[10.5px] font-extrabold uppercase tracking-wide text-white">
-                      ★ Most booked
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-grad px-2.5 py-1 text-[10.5px] font-extrabold uppercase tracking-wide text-white">
+                      <Star className="size-3 text-white" fill="currentColor" strokeWidth={0} aria-hidden="true" /> Most booked
                     </span>
                     <h2 className="mt-2.5 text-[19px] font-extrabold tracking-tight">1:1 Career Strategy Call</h2>
                     <div className="mt-1 text-[12.5px] font-semibold text-muted">45 min · Google Meet · recorded</div>

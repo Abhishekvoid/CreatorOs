@@ -1,5 +1,6 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 
 /** IST day bounds [from, to) in UTC ISO for a picked civil date. */
@@ -93,7 +94,7 @@ export default function SlotPicker({
             }`}
           >
             {istTime(s.slotStart)}
-            {sel && " ✓"}
+            {sel && <Check className="ml-1 inline size-3.5 align-[-2px]" strokeWidth={3} aria-hidden="true" />}
           </button>
         );
       })}
