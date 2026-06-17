@@ -11,13 +11,14 @@ export const metadata: Metadata = {
 
 /**
  * Onboarding completion: publish the page (is_published=true), then the publish
- * signature moment. Publishing requires at least one bookable service; if the
- * creator hasn't added one we send them back to the service step.
+ * signature moment. Publishing is gated (handle + bookable service + an
+ * availability window); if the creator is missing one, we send them back to the
+ * exact step that fixes it rather than failing generically.
  */
 export default async function OnboardingPublishPage() {
   if (isSupabaseConfigured) {
     const result = await publishProfile();
-    if (!result.success) redirect("/onboarding/service");
+    if (!result.success) redirect(result.redirectTo ?? "/onboarding/service");
   }
   return (
     <main className="relative grid min-h-screen place-items-center overflow-hidden py-16">

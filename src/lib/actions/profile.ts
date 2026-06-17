@@ -1,6 +1,7 @@
 "use server";
 
 import { type CreatorDraft, emptyDraft, toE164 } from "@/lib/creator";
+import { evaluatePublishEligibility } from "@/lib/publish-eligibility";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -116,10 +117,16 @@ export async function saveProfileDraft(
 
 /**
  * Publish the creator's page: flip is_published=true so creatoros.in/{handle}
- * goes live. Gated — a creator must have at least one active bookable service,
- * so a published page is always bookable.
+ * goes live. Gated by evaluatePublishEligibility — a page only goes live when
+ * it is genuinely bookable: a claimed handle, an active booking service, and
+ * an active availability window. On failure we return the first blocker's
+ * message and the onboarding step the caller should send the creator back to.
  */
-export async function publishProfile(): Promise<{ success: boolean; error?: string }> {
+export async function publishProfile(): Promise<{
+  success: boolean;
+  error?: string;
+  redirectTo?: string;
+}> {
   if (!isSupabaseConfigured) return { success: false, error: "Supabase isn't configured" };
 
   const supabase = await createClient();
@@ -128,14 +135,28 @@ export async function publishProfile(): Promise<{ success: boolean; error?: stri
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Not signed in" };
 
-  const { count } = await supabase
-    .from("services")
-    .select("id", { count: "exact", head: true })
-    .eq("profile_id", user.id)
-    .eq("type", "booking")
-    .eq("is_active", true);
-  if (!count || count < 1) {
-    return { success: false, error: "Add at least one bookable service before publishing." };
+  const [{ data: profile }, serviceCount, availabilityCount] = await Promise.all([
+    supabase.from("profiles").select("handle").eq("id", user.id).maybeSingle<{ handle: string | null }>(),
+    supabase
+      .from("services")
+      .select("id", { count: "exact", head: true })
+      .eq("profile_id", user.id)
+      .eq("type", "booking")
+      .eq("is_active", true),
+    supabase
+      .from("availability")
+      .select("id", { count: "exact", head: true })
+      .eq("profile_id", user.id)
+      .eq("is_active", true),
+  ]);
+
+  const eligibility = evaluatePublishEligibility({
+    hasHandle: Boolean(profile?.handle),
+    serviceCount: serviceCount.count ?? 0,
+    availabilityCount: availabilityCount.count ?? 0,
+  });
+  if (!eligibility.ok) {
+    return { success: false, error: eligibility.error, redirectTo: eligibility.redirectTo };
   }
 
   const { error } = await supabase.from("profiles").update({ is_published: true }).eq("id", user.id);
