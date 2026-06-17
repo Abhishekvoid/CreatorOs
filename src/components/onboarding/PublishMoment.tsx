@@ -21,14 +21,21 @@ function reducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-export default function PublishMoment() {
-  const [handle, setHandle] = useState<string | null>(null);
+export default function PublishMoment({ handle: serverHandle }: { handle?: string }) {
+  const [handle, setHandle] = useState<string | null>(serverHandle ?? null);
   const [copied, setCopied] = useState(false);
   const [staticReveal, setStaticReveal] = useState(false);
 
   useEffect(() => {
-    getProfileDraft().then((d) => {
-      setHandle(d.handle || slugify(d.name) || "you");
+    // The published handle is the source of truth and arrives as a prop from
+    // the server. Only when it's absent (local dev without Supabase) do we fall
+    // back to the draft, deriving a best-effort handle from the name.
+    const resolve = serverHandle
+      ? Promise.resolve(serverHandle)
+      : getProfileDraft().then((d) => d.handle || slugify(d.name) || "you");
+
+    resolve.then((resolved) => {
+      setHandle(resolved);
       if (reducedMotion()) {
         setStaticReveal(true);
         return; // no confetti, no choreography
@@ -52,7 +59,7 @@ export default function PublishMoment() {
         setTimeout(burst, 650); // after the URL finishes typing on
       }
     });
-  }, []);
+  }, [serverHandle]);
 
   const url = `creatoros.in/${handle ?? ""}`;
   const chars = url.split("");
@@ -122,6 +129,11 @@ export default function PublishMoment() {
         >
           {copied ? "Copied" : "Copy link"}
         </button>
+        {handle && (
+          <a href={`/${handle}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-lg">
+            View profile
+          </a>
+        )}
       </div>
 
       <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13.5px] font-semibold">
