@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function EmptyState() {
   return (
     <section className="dot-texture relative overflow-hidden rounded-[32px] border border-line bg-grad-soft px-7 py-12 text-center max-sm:px-5">
@@ -28,15 +30,15 @@ export default function EmptyState() {
         </p>
 
         <div className="mt-7 flex flex-wrap justify-center gap-2.5">
-          <a href="#" className="btn btn-grad !px-5.5 !py-2.5 !text-[13.5px]">
+          <Link href="/onboarding/service" className="btn btn-grad !px-5.5 !py-2.5 !text-[13.5px]">
             Create a service <span className="arr">→</span>
-          </a>
-          <a href="#" className="btn btn-ghost !bg-paper !px-5 !py-2.5 !text-[13.5px]">
-            Connect calendar
-          </a>
-          <a href="#" className="btn btn-ghost !bg-paper !px-5 !py-2.5 !text-[13.5px]">
+          </Link>
+          <Link href="/onboarding/availability" className="btn btn-ghost !bg-paper !px-5 !py-2.5 !text-[13.5px]">
+            Set availability
+          </Link>
+          <Link href="/onboarding/payments" className="btn btn-ghost !bg-paper !px-5 !py-2.5 !text-[13.5px]">
             Connect payments
-          </a>
+          </Link>
         </div>
         <p className="mt-4 text-[12px] font-semibold text-muted">
           Most creators are live in under 10 minutes — and the first booking usually follows within a week.
