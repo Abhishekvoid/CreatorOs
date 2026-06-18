@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Hand, Command } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
@@ -60,12 +61,13 @@ const ICONS = {
 };
 
 /* ---------------- nav ---------------- */
-const NAV: { group?: string; items: { label: string; icon: keyof typeof ICONS; active?: boolean }[] }[] = [
-  { items: [{ label: "Overview", icon: "overview", active: true }] },
+/* Items with an `href` are real, built routes; the rest are placeholders. */
+const NAV: { group?: string; items: { label: string; icon: keyof typeof ICONS; href?: string }[] }[] = [
+  { items: [{ label: "Overview", icon: "overview", href: "/dashboard" }] },
   {
     group: "Business",
     items: [
-      { label: "Bookings", icon: "bookings" },
+      { label: "Bookings", icon: "bookings", href: "/dashboard/bookings" },
       { label: "Clients", icon: "clients" },
       { label: "Services", icon: "services" },
       { label: "Products", icon: "products" },
@@ -101,6 +103,10 @@ function Avatar({ creator, className }: { creator: ShellCreator | null; classNam
 }
 
 function SidebarContent({ creator }: { creator: ShellCreator | null }) {
+  const pathname = usePathname();
+  const isActive = (href?: string) =>
+    !href ? false : href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center px-5 pb-5 pt-6">
@@ -121,19 +127,27 @@ function SidebarContent({ creator }: { creator: ShellCreator | null }) {
               </div>
             )}
             <div className="flex flex-col gap-0.5">
-              {section.items.map((item) => (
-                <a
-                  key={item.label}
-                  href="#"
-                  aria-current={item.active ? "page" : undefined}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-bold transition-colors duration-200 ${
-                    item.active ? "bg-ink text-cream shadow-soft" : "text-ink-2 hover:bg-cream-2 hover:text-ink"
-                  }`}
-                >
-                  <Icon d={ICONS[item.icon]} className={`size-[17px] shrink-0 ${item.active ? "" : "text-muted"}`} />
-                  {item.label}
-                </a>
-              ))}
+              {section.items.map((item) => {
+                const active = isActive(item.href);
+                const className = `flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-bold transition-colors duration-200 ${
+                  active ? "bg-ink text-cream shadow-soft" : "text-ink-2 hover:bg-cream-2 hover:text-ink"
+                }`;
+                const inner = (
+                  <>
+                    <Icon d={ICONS[item.icon]} className={`size-[17px] shrink-0 ${active ? "" : "text-muted"}`} />
+                    {item.label}
+                  </>
+                );
+                return item.href ? (
+                  <Link key={item.label} href={item.href} aria-current={active ? "page" : undefined} className={className}>
+                    {inner}
+                  </Link>
+                ) : (
+                  <a key={item.label} href="#" className={className}>
+                    {inner}
+                  </a>
+                );
+              })}
             </div>
           </div>
         ))}
