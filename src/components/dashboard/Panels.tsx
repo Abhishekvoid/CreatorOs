@@ -22,7 +22,12 @@ export function UpcomingBookings({
 }) {
   return (
     <section className="rounded-[28px] border border-line bg-paper p-6.5 max-sm:p-5" aria-label="Upcoming sessions">
-      <h2 className="text-[16px] font-bold tracking-tight">Upcoming sessions</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-[16px] font-bold tracking-tight">Upcoming sessions</h2>
+        <Link href="/dashboard/bookings" className="text-[12.5px] font-bold text-muted transition-colors duration-200 hover:text-ink">
+          View all →
+        </Link>
+      </div>
 
       {bookings.length === 0 ? (
         <p className="mt-3 rounded-2xl bg-cream px-4 py-6 text-center text-[13px] font-semibold text-muted">

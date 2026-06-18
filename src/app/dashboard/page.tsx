@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import EmptyState from "@/components/dashboard/EmptyState";
 import { HeroCard } from "@/components/dashboard/Overview";
 import { ActivityFeed, QuickActions, UpcomingBookings } from "@/components/dashboard/Panels";
 import ProfileStatusStrip from "@/components/dashboard/ProfileStatusStrip";
-import Shell, { type ShellCreator } from "@/components/dashboard/Shell";
+import Shell from "@/components/dashboard/Shell";
 import { getCreatorDashboard, type CreatorDashboard } from "@/lib/dashboard";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { createClient } from "@/lib/supabase/server";
+import { getDashboardIdentity } from "@/lib/dashboard-identity";
 
 export const metadata: Metadata = {
   title: "Dashboard | CreatorOS",
@@ -19,13 +17,6 @@ const EMPTY_DASHBOARD: CreatorDashboard = {
   confirmedBookings: 0,
   upcoming: [],
   activity: [],
-};
-
-type ProfileRow = {
-  handle: string | null;
-  is_published: boolean | null;
-  display_name: string | null;
-  avatar_url: string | null;
 };
 
 export default async function DashboardPage({
@@ -41,33 +32,12 @@ export default async function DashboardPage({
   // tables are RLS-locked away from the authenticated client. Both are scoped to
   // this signed-in creator. In local dev without Supabase we render neutral empty
   // states rather than mock data.
-  let creator: ShellCreator | null = null;
+  const identity = await getDashboardIdentity();
   let data: CreatorDashboard = EMPTY_DASHBOARD;
 
-  if (isSupabaseConfigured) {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) redirect("/login");
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("handle, is_published, display_name, avatar_url")
-      .eq("id", user.id)
-      .maybeSingle<ProfileRow>();
-    if (!profile?.handle) redirect("/onboarding/handle");
-
-    creator = {
-      name: profile.display_name?.trim() || profile.handle,
-      email: user.email ?? "",
-      avatarUrl: profile.avatar_url,
-      handle: profile.handle,
-      isPublished: Boolean(profile.is_published),
-    };
-
+  if (identity) {
     try {
-      data = await getCreatorDashboard(user.id);
+      data = await getCreatorDashboard(identity.userId);
     } catch (err) {
       // The page must still render the profile + status even if the booking
       // store is unreachable (e.g. SUPABASE_DB_URL unset). Fall back to empty.
@@ -75,6 +45,7 @@ export default async function DashboardPage({
     }
   }
 
+  const creator = identity?.creator ?? null;
   const isPublished = creator?.isPublished ?? false;
 
   return (
