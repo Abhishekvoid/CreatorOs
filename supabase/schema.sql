@@ -512,3 +512,143 @@ create policy "Owners insert own payment profile" on public.creator_payment_prof
 drop policy if exists "Owners update own payment profile" on public.creator_payment_profiles;
 create policy "Owners update own payment profile" on public.creator_payment_profiles
   for update using (auth.uid() = creator_id) with check (auth.uid() = creator_id);
+
+-- ============================================================
+-- Part 10 — Billing & Subscriptions (additive, idempotent)
+--
+-- CreatorOS's OWN subscription revenue (Free vs Pro). This is unrelated to the
+-- frozen money infrastructure (Parts 4-8) and to Route payouts (Part 9): those
+-- concern money flowing from a creator's CUSTOMERS to the creator. This concerns
+-- the creator paying CreatorOS ₹499/mo for Pro.
+--
+-- It MIRRORS the frozen payments architecture on its own tables rather than
+-- reusing it:
+--   * billing_events is an append-only ledger (immutability trigger), exactly
+--     like payment_events.
+--   * subscriptions is the source of truth, written ONLY by the billing
+--     processor (and the upgrade action's initial 'pending' insert), exactly as
+--     payment_orders is owned by the payments orchestrator + processor.
+--   * profiles.plan is a denormalized read cache the booking hot path reads
+--     instead of joining subscriptions on every booking attempt; the processor
+--     updates it in the SAME transaction as the subscriptions row, so it can
+--     never drift from the source of truth.
+-- The payments tables, payment_events and the existing ingest path are NOT
+-- touched by anything in this part.
+-- ============================================================
+
+-- ---- profiles.plan --------------------------------------------------
+-- Denormalized entitlement cache (hot path: enforcement reads this, never joins
+-- subscriptions on a booking attempt). 'free' until the processor grants 'pro'.
+alter table public.profiles
+  add column if not exists plan text not null default 'free'
+    check (plan in ('free', 'pro'));
+
+-- ---- subscriptions (SOURCE OF TRUTH) --------------------------------
+-- One row per creator (creator_id UNIQUE — the database-level guard that, with
+-- the upgrade action's pre-check, makes a double-click unable to create two
+-- Razorpay subscriptions). Written only by the service role (billing processor +
+-- upgrade server action via the pg pool); the creator reads their own row.
+--
+-- status lifecycle:
+--   pending    — Razorpay subscription created, not yet activated (the upgrade
+--                action's initial insert; analogous to payment_orders 'created')
+--   trial      — RESERVED, unused today (no free trial); kept so adding trials
+--                later needs no constraint change
+--   active     — charged & current; plan='pro'
+--   past_due   — a charge failed; plan stays 'pro' through dunning
+--   cancelled  — cancel requested; KEEPS plan='pro' until current_period_end
+--   expired    — period lapsed; plan flipped back to 'free'
+create table if not exists public.subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  creator_id uuid not null unique references public.profiles (id) on delete cascade,
+  plan text not null default 'free' check (plan in ('free', 'pro')),
+  status text not null default 'pending'
+    check (status in ('pending', 'trial', 'active', 'past_due', 'cancelled', 'expired')),
+  razorpay_subscription_id text unique,
+  razorpay_plan_id text,
+  current_period_end timestamptz,
+  trial_end timestamptz,
+  cancel_at_period_end boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+-- the reconciliation sweep finds subscriptions whose paid period has lapsed
+create index if not exists subscriptions_period_end_idx
+  on public.subscriptions (current_period_end)
+  where status in ('active', 'past_due', 'cancelled');
+
+drop trigger if exists subscriptions_set_updated_at on public.subscriptions;
+create trigger subscriptions_set_updated_at
+  before update on public.subscriptions
+  for each row execute function public.set_updated_at();
+
+-- ---- billing_events (APPEND-ONLY LEDGER) ----------------------------
+-- Immutable, append-only — mirror of payment_events. Only (processed,
+-- processed_at) may ever change; no row may be deleted. Duplicate provider
+-- deliveries collapse on (event_source, provider_event_id), so re-delivery is a
+-- no-op insert. The billing processor is the only consumer.
+create table if not exists public.billing_events (
+  id uuid primary key default gen_random_uuid(),
+  creator_id uuid references public.profiles (id) on delete set null,
+  event_source text not null check (event_source in ('webhook', 'reconciliation', 'manual')),
+  event_type text not null,
+  provider_event_id text not null,
+  razorpay_subscription_id text,
+  payload jsonb not null default '{}',
+  processed boolean not null default false,
+  processed_at timestamptz,
+  created_at timestamptz not null default now(),
+  unique (event_source, provider_event_id)
+);
+-- the processor claims oldest-first among unprocessed rows
+create index if not exists billing_events_unprocessed_idx
+  on public.billing_events (created_at) where processed = false;
+create index if not exists billing_events_subscription_idx
+  on public.billing_events (razorpay_subscription_id);
+
+-- ---- immutability guard (mirror of payment_events_guard) ------------
+-- only (processed, processed_at) may change; never delete.
+create or replace function public.billing_events_guard()
+returns trigger language plpgsql as $$
+begin
+  if tg_op = 'DELETE' then
+    raise exception 'billing_events is append-only: deletes are forbidden';
+  end if;
+  if new.id is distinct from old.id
+     or new.creator_id is distinct from old.creator_id
+     or new.event_source is distinct from old.event_source
+     or new.event_type is distinct from old.event_type
+     or new.provider_event_id is distinct from old.provider_event_id
+     or new.razorpay_subscription_id is distinct from old.razorpay_subscription_id
+     or new.payload is distinct from old.payload
+     or new.created_at is distinct from old.created_at then
+    raise exception 'billing_events is immutable except (processed, processed_at)';
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists billing_events_guard_update on public.billing_events;
+create trigger billing_events_guard_update
+  before update on public.billing_events
+  for each row execute function public.billing_events_guard();
+drop trigger if exists billing_events_guard_delete on public.billing_events;
+create trigger billing_events_guard_delete
+  before delete on public.billing_events
+  for each row execute function public.billing_events_guard();
+
+-- ---- RLS ------------------------------------------------------------
+-- subscriptions: owner-readable and PRIVATE (the creator reads their own plan on
+-- /dashboard/billing). Writes are service-role only — the upgrade action and the
+-- processor both write through the pg pool, never the authenticated client.
+alter table public.subscriptions enable row level security;
+drop policy if exists "Owners read own subscription" on public.subscriptions;
+create policy "Owners read own subscription" on public.subscriptions
+  for select using (auth.uid() = creator_id);
+revoke insert, update, delete on public.subscriptions from anon, authenticated;
+grant all on public.subscriptions to service_role;
+
+-- billing_events: service-role only (RLS on, zero policies, grants revoked) —
+-- exactly like the payment ledger.
+alter table public.billing_events enable row level security;
+revoke all on public.billing_events from anon, authenticated;
+grant all on public.billing_events to service_role;
