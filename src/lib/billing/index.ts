@@ -15,3 +15,13 @@ export {
 export type { BillingProcessSummary, BillingReconcileSummary } from "./processor";
 export { getBillingProvider } from "./provider";
 export type { BillingProvider } from "./provider";
+export {
+  BookingsUnavailableError,
+  canAcceptBooking,
+  canCreateService,
+  confirmedBookingsThisMonth,
+  enqueueCreatorLimitNudges,
+  getPlan,
+  FREE_BOOKINGS_PER_MONTH,
+  FREE_MAX_SERVICES,
+} from "./enforcement";

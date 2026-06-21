@@ -1,5 +1,6 @@
 import { cronUnauthorized, isCronAuthorized } from "@/lib/cron-auth";
 import { processPendingBillingEvents, reconcileBillingExpiries } from "@/lib/billing";
+import { enqueueCreatorLimitNudges } from "@/lib/billing/enforcement";
 
 /**
  * Billing Processor cron endpoint — a thin HTTP adapter, the subscription
@@ -17,7 +18,8 @@ export async function GET(request: Request): Promise<Response> {
   try {
     const drained = await processPendingBillingEvents();
     const swept = await reconcileBillingExpiries();
-    return new Response(JSON.stringify({ ...drained, ...swept }), {
+    const nudged = await enqueueCreatorLimitNudges();
+    return new Response(JSON.stringify({ ...drained, ...swept, nudged: nudged.enqueued }), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
