@@ -14,17 +14,23 @@ import type { BillingOverview } from "@/lib/billing/overview";
  */
 
 const PRO_PRICE = "₹499";
-const PRO_BENEFITS = [
-  "Unlimited bookings every month",
-  "Unlimited services",
-  "Custom branding (remove CreatorOS badge)",
-  "Advanced availability",
-  "Analytics",
-];
+// Only what we actually deliver today. Adding a benefit here is a promise — keep
+// this list honest until the feature is built and plan-gated.
+const PRO_BENEFITS = ["Unlimited bookings every month", "Unlimited services"];
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+}
+
+/** Label for the next monthly quota reset (1st of next month, IST). */
+function nextResetLabel(): string {
+  const parts = new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", month: "numeric", year: "numeric" }).formatToParts(new Date());
+  const month = Number(parts.find((p) => p.type === "month")!.value);
+  const year = Number(parts.find((p) => p.type === "year")!.value);
+  const nextMonth = month === 12 ? 1 : month + 1;
+  const nextYear = month === 12 ? year + 1 : year;
+  return new Date(Date.UTC(nextYear, nextMonth - 1, 1)).toLocaleDateString("en-IN", { day: "numeric", month: "long" });
 }
 
 export default function BillingPanel({ overview }: { overview: BillingOverview }) {
@@ -73,7 +79,9 @@ export default function BillingPanel({ overview }: { overview: BillingOverview }
       <header>
         <h1 className="text-[22px] font-extrabold tracking-tight">Billing</h1>
         <p className="mt-1 text-[13.5px] font-medium text-muted">
-          {isPro ? "You're on Pro — everything unlocked." : "You're on the Free plan."}
+          {isPro
+            ? "You're on Pro — everything unlocked. You keep 100% of every booking."
+            : "You keep 100% of every booking — CreatorOS never takes a commission. Free covers 5 bookings a month."}
         </p>
       </header>
 
@@ -119,7 +127,9 @@ export default function BillingPanel({ overview }: { overview: BillingOverview }
       {/* usage — always shown for Free so quota is visible before the wall */}
       {!isPro && (
         <section className="rounded-[24px] border border-line bg-paper p-6 shadow-soft">
-          <h2 className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-faint">This month</h2>
+          <h2 className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-faint">
+            This month <span className="text-muted">· resets {nextResetLabel()}</span>
+          </h2>
           <UsageRow
             label="Bookings"
             used={overview.usage.confirmedThisMonth}
@@ -139,7 +149,10 @@ export default function BillingPanel({ overview }: { overview: BillingOverview }
           </div>
           <p className="mt-1 text-[13.5px] font-medium text-[#B5B0A4]">
             {PRO_PRICE}
-            <span className="text-[#8E897D]">/month · auto-renews via UPI</span>
+            <span className="text-[#8E897D]">/month · cancel anytime</span>
+          </p>
+          <p className="mt-1.5 text-[12.5px] font-medium text-[#8E897D]">
+            You always keep 100% of your booking revenue — we never take a cut.
           </p>
           <ul className="mt-4 grid gap-2">
             {PRO_BENEFITS.map((b) => (
@@ -156,6 +169,9 @@ export default function BillingPanel({ overview }: { overview: BillingOverview }
             {pending ? <Loader2 className="size-4 animate-spin" strokeWidth={2.5} /> : null}
             {pending ? "Starting…" : `Upgrade to Pro — ${PRO_PRICE}/mo`}
           </button>
+          <p className="mt-2 text-center text-[11.5px] font-medium text-[#8E897D]">
+            Auto-renews monthly via UPI. Cancel anytime, no questions.
+          </p>
         </section>
       )}
 
@@ -170,13 +186,14 @@ export default function BillingPanel({ overview }: { overview: BillingOverview }
 
 function UsageRow({ label, used, limit, atLimit }: { label: string; used: number; limit: number; atLimit: boolean }) {
   const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+  const remaining = limit > 0 ? Math.max(0, limit - used) : -1;
   return (
     <div className="mt-4">
       <div className="flex items-center justify-between text-[13.5px] font-bold">
         <span>{label}</span>
         <span className={atLimit ? "text-terra-deep" : "text-ink-2"}>
           {used} / {limit}
-          {atLimit ? " · limit reached" : ""}
+          {atLimit ? " · limit reached" : remaining > 0 ? ` · ${remaining} left` : ""}
         </span>
       </div>
       <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-cream-2">
