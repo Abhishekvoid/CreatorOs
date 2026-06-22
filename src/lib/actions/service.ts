@@ -1,5 +1,6 @@
 "use server";
 
+import { canCreateService } from "@/lib/billing/enforcement";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -104,6 +105,15 @@ export async function saveServiceDraft(
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle<{ id: string }>();
+
+  // Plan gate: creating a NEW service (not editing the wizard's one row) is
+  // capped on Free. The wizard only ever edits its single service, so this is
+  // structurally satisfied today, but gating the insert path holds the line for
+  // when a dashboard "add service" flow ships. Creator-facing, so the upgrade
+  // CTA is explicit here (unlike the client-facing booking block).
+  if (!existing && !(await canCreateService(user.id))) {
+    return { success: false, error: "Upgrade to Pro to add more services" };
+  }
 
   const { error } = existing
     ? await supabase.from("services").update(values).eq("id", existing.id)

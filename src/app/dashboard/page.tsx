@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import EmptyState from "@/components/dashboard/EmptyState";
 import { HeroCard } from "@/components/dashboard/Overview";
 import { ActivityFeed, QuickActions, UpcomingBookings } from "@/components/dashboard/Panels";
+import PlanBanner from "@/components/dashboard/PlanBanner";
 import ProfileStatusStrip from "@/components/dashboard/ProfileStatusStrip";
 import Shell from "@/components/dashboard/Shell";
+import { getBillingOverview, type BillingOverview } from "@/lib/billing/overview";
 import { getCreatorDashboard, type CreatorDashboard } from "@/lib/dashboard";
 import { getDashboardIdentity } from "@/lib/dashboard-identity";
 
@@ -34,6 +36,7 @@ export default async function DashboardPage({
   // states rather than mock data.
   const identity = await getDashboardIdentity();
   let data: CreatorDashboard = EMPTY_DASHBOARD;
+  let billing: BillingOverview | null = null;
 
   if (identity) {
     try {
@@ -42,6 +45,11 @@ export default async function DashboardPage({
       // The page must still render the profile + status even if the booking
       // store is unreachable (e.g. SUPABASE_DB_URL unset). Fall back to empty.
       console.error("[dashboard] failed to load creator dashboard data", err);
+    }
+    try {
+      billing = await getBillingOverview(identity.userId);
+    } catch (err) {
+      console.error("[dashboard] failed to load billing overview", err);
     }
   }
 
@@ -52,6 +60,7 @@ export default async function DashboardPage({
     <Shell creator={creator}>
       <div className="flex flex-col gap-5">
         {creator && <ProfileStatusStrip handle={creator.handle} isPublished={creator.isPublished} />}
+        {billing && <PlanBanner overview={billing} />}
         {isNew && <EmptyState />}
         <HeroCard revenue={data.revenue} confirmedBookings={data.confirmedBookings} />
         <div className="grid items-start gap-5 xl:grid-cols-[1fr_340px]">

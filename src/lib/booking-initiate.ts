@@ -1,4 +1,5 @@
 import { getAvailability, type AvailableSlot } from "@/lib/booking";
+import { BookingsUnavailableError, canAcceptBooking, getCreatorWhatsapp } from "@/lib/billing/enforcement";
 import { getPool, type Executor } from "@/lib/db/pool";
 import { initiate, type PaymentProvider } from "@/lib/payments";
 
@@ -87,6 +88,15 @@ export async function initiateBooking(
 ): Promise<InitiateBookingResult> {
   const pool = getPool();
   const creatorId = await resolveCreatorId(input.creatorHandle, pool);
+
+  // Plan gate (Decision B/C): a free creator at their monthly confirmed-booking
+  // limit cannot take new bookings. Checked BEFORE any lock/order is created, so
+  // a blocked attempt leaves no booking, lock, or order behind. Reads the
+  // profiles.plan hot-path cache; never joins subscriptions.
+  if (!(await canAcceptBooking(creatorId, pool))) {
+    throw new BookingsUnavailableError(await getCreatorWhatsapp(creatorId, pool));
+  }
+
   const { pricePaise, durationMinutes } = await resolveService(creatorId, input.serviceId, pool);
   const slotEnd = new Date(new Date(input.slotStart).getTime() + durationMinutes * 60_000).toISOString();
 

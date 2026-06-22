@@ -85,6 +85,7 @@ const NAV: { group?: string; items: { label: string; icon: keyof typeof ICONS; h
     group: "Insights",
     items: [
       { label: "Analytics", icon: "analytics" },
+      { label: "Billing", icon: "payments", href: "/dashboard/billing" },
       { label: "Settings", icon: "settings" },
     ],
   },

@@ -1,4 +1,5 @@
 import { SlotUnavailableError } from "@/lib/booking";
+import { BookingsUnavailableError } from "@/lib/billing/enforcement";
 import { initiateBooking, CreatorNotFoundError, ServiceNotFoundError } from "@/lib/booking-initiate";
 
 /**
@@ -55,6 +56,12 @@ export async function POST(request: Request): Promise<Response> {
     }
     if (err instanceof SlotUnavailableError) {
       return json(409, { error: "slot no longer available" });
+    }
+    // Decision B: a neutral, dignified signal — NO mention of limit/plan/tier.
+    // To the visitor this reads as a deliberate availability choice. The client
+    // offers the creator's WhatsApp as the way to arrange a time.
+    if (err instanceof BookingsUnavailableError) {
+      return json(403, { error: "bookings_unavailable", whatsappNumber: err.whatsappNumber });
     }
     return json(500, { error: "could not start booking" });
   }

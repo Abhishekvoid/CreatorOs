@@ -21,10 +21,11 @@ set -euo pipefail
 
 # endpoint:cron  (cadences mirror the original vercel.json, recovered from 459dd84^)
 schedules=(
-  "process-events:* * * * *"   # hot path — drain payment_events
-  "notifications:* * * * *"    # drain notification_queue
-  "reconcile:*/5 * * * *"      # age expired holds + sweep provider truth
-  "integrity:0 * * * *"        # hourly invariant checks
+  "process-events:* * * * *"         # hot path — drain payment_events
+  "notifications:* * * * *"          # drain notification_queue
+  "reconcile:*/5 * * * *"            # age expired holds + sweep provider truth
+  "integrity:0 * * * *"              # hourly invariant checks
+  "process-billing-events:* * * * *" # drain billing_events + sweep lapsed subscriptions
 )
 
 for entry in "${schedules[@]}"; do
