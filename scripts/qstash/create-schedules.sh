@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Create the four CreatorOS cron schedules in Upstash QStash.
+# Create the CreatorOS cron schedules in Upstash QStash.
 #
 # QStash issues authenticated HTTPS GETs to the existing /api/cron/* endpoints.
 # The Upstash-Forward-Authorization header is passed through to the endpoint as
@@ -26,6 +26,7 @@ schedules=(
   "reconcile:*/5 * * * *"            # age expired holds + sweep provider truth
   "integrity:0 * * * *"              # hourly invariant checks
   "process-billing-events:* * * * *" # drain billing_events + sweep lapsed subscriptions
+  "monthly-summary:0 0 1 * *"        # 00:00 UTC on the 1st — enqueue last month's income summary
 )
 
 for entry in "${schedules[@]}"; do
@@ -41,4 +42,4 @@ for entry in "${schedules[@]}"; do
   echo
 done
 
-echo "Done. Verify in the QStash console that 4 schedules are active and returning 200."
+echo "Done. Verify in the QStash console that all schedules are active and returning 200."

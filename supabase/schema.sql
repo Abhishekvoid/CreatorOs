@@ -728,3 +728,22 @@ on conflict (creator_id, whatsapp) do nothing;
 alter table public.clients enable row level security;
 revoke all on public.clients from anon, authenticated;
 grant all on public.clients to service_role;
+
+-- ============================================================
+-- Part 12 — Creator-level notification dedup (additive, idempotent)
+--
+-- The Processor's booking notifications dedup on (booking_id, type). But
+-- creator-level messages (e.g. the monthly income summary) have NO booking, so
+-- booking_id is null — and Postgres treats nulls as DISTINCT in a unique index,
+-- which would let duplicate scheduler runs enqueue the same summary twice.
+--
+-- dedup_key is the idempotency key for those booking-less rows: the monthly
+-- enqueue sets it to 'monthly_summary:<creator_id>:<YYYY-MM>' and inserts with
+-- `on conflict (dedup_key) do nothing`, so a re-fired/retried cron is a no-op.
+-- Booking notifications leave it null (multiple nulls are allowed), so their
+-- existing (booking_id, type) identity is completely untouched.
+-- ============================================================
+alter table public.notification_queue
+  add column if not exists dedup_key text;
+create unique index if not exists notification_queue_dedup_idx
+  on public.notification_queue (dedup_key);
