@@ -1,5 +1,6 @@
 import type { PoolClient } from "pg";
 import { confirmBooking, releaseLock } from "@/lib/booking";
+import { upsertClientForBooking } from "@/lib/clients";
 import { withTransaction } from "@/lib/db/pool";
 
 /**
@@ -121,7 +122,15 @@ export async function applyEvent(client: PoolClient, event: ClaimableEvent): Pro
         where id = $1 and status in ('created', 'pending')`,
       [event.payment_order_id, event.id],
     );
-    await confirmBooking({ bookingId }, client);
+    const { bookingConfirmed } = await confirmBooking({ bookingId }, client);
+    // Build the creator's CRM (FR-40). Gate on bookingConfirmed so this runs
+    // exactly once per booking — its first payment_pending -> confirmed flip.
+    // A replayed/out-of-order event re-runs confirmBooking, which no-ops, so
+    // booking_count / lifetime_spend never double-count. Same transaction:
+    // the client record commits atomically with the confirmation or not at all.
+    if (bookingConfirmed) {
+      await upsertClientForBooking(client, bookingId);
+    }
     await enqueue(client, bookingId, "creator_confirmation", "confirmed", { recipient: "creator", kind: "confirmation" });
     await enqueue(client, bookingId, "client_confirmation", "confirmed", { recipient: "client", kind: "confirmation" });
   } else {
