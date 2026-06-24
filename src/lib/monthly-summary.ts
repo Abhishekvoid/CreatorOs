@@ -181,10 +181,10 @@ export async function enqueueMonthlySummaries(
     };
     const { rowCount } = await db.query(
       `insert into public.notification_queue
-         (correlation_id, booking_id, type, channel, payload, dedup_key)
-       values ($1, null, 'monthly_summary', 'whatsapp', $2::jsonb, $3)
+         (correlation_id, booking_id, creator_id, type, channel, payload, dedup_key)
+       values ($1, null, $4, 'monthly_summary', 'whatsapp', $2::jsonb, $3)
        on conflict (dedup_key) do nothing`,
-      [randomUUID(), JSON.stringify(payload), `monthly_summary:${c.creator_id}:${summary.periodMonth}`],
+      [randomUUID(), JSON.stringify(payload), `monthly_summary:${c.creator_id}:${summary.periodMonth}`, c.creator_id],
     );
     enqueued += rowCount ?? 0;
   }
