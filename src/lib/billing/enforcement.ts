@@ -116,10 +116,17 @@ export async function enqueueCreatorLimitNudges(db: Executor = getPool()): Promi
         group by b.creator_id
      )
      insert into public.notification_queue (correlation_id, booking_id, type, channel, payload)
-     select latest_corr, latest_booking, 'creator_plan_limit', 'whatsapp',
-            '{"recipient":"creator","kind":"plan_limit"}'::jsonb
-       from monthly
-      where confirmed >= ${FREE_BOOKINGS_PER_MONTH}
+     select m.latest_corr, m.latest_booking, 'creator_plan_limit', 'whatsapp',
+            jsonb_build_object(
+              'recipient', 'creator',
+              'kind', 'plan_limit',
+              'to', p.whatsapp_number,
+              'text', 'You''ve hit your free plan''s monthly booking limit. '
+                      || 'Upgrade to Pro to keep accepting bookings this month.'
+            )
+       from monthly m
+       join public.profiles p on p.id = m.creator_id
+      where m.confirmed >= ${FREE_BOOKINGS_PER_MONTH}
      on conflict (booking_id, type) do nothing
      returning booking_id`,
   );

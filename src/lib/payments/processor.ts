@@ -66,21 +66,55 @@ export async function claimNext(client: PoolClient): Promise<ClaimableEvent | nu
   return rows[0] ?? null;
 }
 
-/** Enqueue a notification only if the booking actually reached `expectedStatus`. */
+/**
+ * Enqueue a notification only if the booking actually reached `expectedStatus`.
+ *
+ * The payload carries the uniform delivery contract the provider reads — `to`
+ * (the client's phone for client_* , the creator's whatsapp_number for
+ * creator_*) and a short rendered `text` — plus the original {recipient, kind}
+ * hints. Building it here, from the booking joined to its creator and service,
+ * keeps the notification worker DB-free and the provider type-agnostic. The
+ * status guard and on-conflict identity are unchanged.
+ */
 async function enqueue(
   client: PoolClient,
   bookingId: string,
   type: string,
   expectedStatus: string,
-  payload: Record<string, unknown>,
+  recipient: "client" | "creator",
+  kind: "confirmation" | "cancellation",
 ): Promise<void> {
   await client.query(
     `insert into public.notification_queue (correlation_id, booking_id, type, channel, payload)
-     select b.correlation_id, b.id, $2, 'whatsapp', $3::jsonb
+     select b.correlation_id, b.id, $2, 'whatsapp',
+            jsonb_build_object(
+              'recipient', $4::text,
+              'kind', $5::text,
+              'to', case when $4 = 'client' then b.customer_phone else p.whatsapp_number end,
+              'text', case
+                when $5 = 'confirmation' and $4 = 'client'
+                  then 'Your booking with ' || coalesce(nullif(p.display_name, ''), p.handle)
+                       || ' is confirmed for '
+                       || to_char(b.slot_start at time zone 'Asia/Kolkata', 'DD Mon, FMHH12:MI am') || '.'
+                when $5 = 'confirmation'
+                  then 'New booking confirmed: ' || coalesce(nullif(b.customer_name, ''), 'a client')
+                       || ' on ' || to_char(b.slot_start at time zone 'Asia/Kolkata', 'DD Mon, FMHH12:MI am')
+                       || coalesce(' for ' || nullif(s.title, ''), '') || '.'
+                when $4 = 'client'
+                  then 'Your booking with ' || coalesce(nullif(p.display_name, ''), p.handle)
+                       || ' on ' || to_char(b.slot_start at time zone 'Asia/Kolkata', 'DD Mon, FMHH12:MI am')
+                       || ' was cancelled.'
+                else 'A booking on '
+                       || to_char(b.slot_start at time zone 'Asia/Kolkata', 'DD Mon, FMHH12:MI am')
+                       || ' was cancelled.'
+              end
+            )
        from public.bookings b
-      where b.id = $1 and b.status = $4
+       join public.profiles p on p.id = b.creator_id
+       left join public.services s on s.id = b.service_id
+      where b.id = $1 and b.status = $3
      on conflict (booking_id, type) do nothing`,
-    [bookingId, type, JSON.stringify(payload), expectedStatus],
+    [bookingId, type, expectedStatus, recipient, kind],
   );
 }
 
@@ -131,8 +165,8 @@ export async function applyEvent(client: PoolClient, event: ClaimableEvent): Pro
     if (bookingConfirmed) {
       await upsertClientForBooking(client, bookingId);
     }
-    await enqueue(client, bookingId, "creator_confirmation", "confirmed", { recipient: "creator", kind: "confirmation" });
-    await enqueue(client, bookingId, "client_confirmation", "confirmed", { recipient: "client", kind: "confirmation" });
+    await enqueue(client, bookingId, "creator_confirmation", "confirmed", "creator", "confirmation");
+    await enqueue(client, bookingId, "client_confirmation", "confirmed", "client", "confirmation");
   } else {
     await client.query(
       `update public.payment_orders
@@ -141,8 +175,8 @@ export async function applyEvent(client: PoolClient, event: ClaimableEvent): Pro
       [event.payment_order_id, event.id],
     );
     await releaseLock({ bookingId }, client);
-    await enqueue(client, bookingId, "creator_cancellation", "cancelled", { recipient: "creator", kind: "cancellation" });
-    await enqueue(client, bookingId, "client_cancellation", "cancelled", { recipient: "client", kind: "cancellation" });
+    await enqueue(client, bookingId, "creator_cancellation", "cancelled", "creator", "cancellation");
+    await enqueue(client, bookingId, "client_cancellation", "cancelled", "client", "cancellation");
   }
 
   await markProcessed(client, event.id);

@@ -116,6 +116,20 @@ async function recordOutcome(
   }
 
   const nextAttempt = claimed.attempt_count + 1;
+
+  // A permanent failure (e.g. a provider 4xx, or a malformed message) can never
+  // succeed on retry — dead-letter it immediately rather than burning the whole
+  // backoff schedule. Retryable failures (the default) keep the existing path.
+  if (result.retryable === false) {
+    await client.query(
+      `update public.notification_queue
+          set status = 'dead_letter', attempt_count = $2, last_error = $3, processing_expires_at = null
+        where id = $1 and status = 'processing'`,
+      [claimed.id, nextAttempt, result.error],
+    );
+    return "dead_letter";
+  }
+
   const delayMinutes = BACKOFF_MINUTES[nextAttempt - 1];
 
   if (delayMinutes === undefined) {
