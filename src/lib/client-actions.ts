@@ -41,6 +41,8 @@ export type RebookPrefill = {
   name?: string | null;
   email?: string | null;
   phone?: string | null;
+  /** The client's last booked service id; preselects it on the booking page. */
+  service?: string | null;
 };
 
 /**
@@ -52,7 +54,7 @@ export type RebookPrefill = {
  */
 export function buildRebookPath(handle: string, prefill: RebookPrefill): string {
   const qs = new URLSearchParams();
-  for (const key of ["name", "email", "phone"] as const) {
+  for (const key of ["name", "email", "phone", "service"] as const) {
     const value = prefill[key]?.trim();
     if (value) qs.set(key, value);
   }

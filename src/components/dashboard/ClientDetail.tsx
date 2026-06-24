@@ -61,6 +61,7 @@ export default function ClientDetail({
     name: client.name,
     email: client.email,
     phone: client.whatsapp,
+    service: client.lastServiceId,
   });
 
   return (

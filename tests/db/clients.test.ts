@@ -42,16 +42,29 @@ async function insertCapturedEvent(correlationId: string, paymentOrderId: string
   return rows[0].id;
 }
 
+/** Seed an active booking service for a creator; returns its id. */
+async function seedService(creatorId: string, title: string): Promise<string> {
+  const { rows } = await pool.query<{ id: string }>(
+    `insert into public.services (profile_id, type, title, price_paise, is_active)
+     values ($1, 'booking', $2, 149900, true)
+     returning id`,
+    [creatorId, title],
+  );
+  return rows[0].id;
+}
+
 /** Initiate a booking, append a captured event, drain the processor → confirmed. */
 async function confirmBooking(opts: {
   creatorId: string;
   amountPaise: number;
   customer: Customer;
   slotOffset?: number;
+  serviceId?: string | null;
 }): Promise<{ bookingId: string; eventId: string }> {
   const slot = uniqueSlot(opts.slotOffset ?? 0);
   const out = await initiate({
     creatorId: opts.creatorId,
+    serviceId: opts.serviceId ?? null,
     slotStart: slot.start,
     slotEnd: slot.end,
     amountPaise: opts.amountPaise,
@@ -171,5 +184,34 @@ describe("client CRM — detail authorization", () => {
     // Creator B asking for A's client id gets null (→ 404), never a leak.
     const crossView = await getCreatorClientDetail(creatorB, clientA.id, pool);
     expect(crossView).toBeNull();
+  });
+});
+
+describe("client CRM — last booked service (rebook)", () => {
+  it("(rebook-1) lastServiceId is the most recently booked confirmed service, creator-scoped", async () => {
+    const creator = await seedCreator(pool);
+    const svcA = await seedService(creator, "Strategy call");
+    const svcB = await seedService(creator, "Deep dive");
+
+    // Two confirmed bookings; the second is booked later (created_at desc wins).
+    await confirmBooking({ creatorId: creator, amountPaise: 100000, customer: CUSTOMER, slotOffset: 0, serviceId: svcA });
+    await confirmBooking({ creatorId: creator, amountPaise: 200000, customer: CUSTOMER, slotOffset: 5, serviceId: svcB });
+
+    const [client] = await getCreatorClients(creator, pool);
+    const detail = await getCreatorClientDetail(creator, client.id, pool);
+    expect(detail!.lastServiceId).toBe(svcB);
+  });
+
+  it("(rebook-5) a deleted service leaves lastServiceId null (booking.service_id → null)", async () => {
+    const creator = await seedCreator(pool);
+    const svc = await seedService(creator, "One-off");
+    await confirmBooking({ creatorId: creator, amountPaise: 100000, customer: CUSTOMER, serviceId: svc });
+
+    // Deleting the service nulls the booking's service_id (on delete set null).
+    await pool.query(`delete from public.services where id = $1`, [svc]);
+
+    const [client] = await getCreatorClients(creator, pool);
+    const detail = await getCreatorClientDetail(creator, client.id, pool);
+    expect(detail!.lastServiceId).toBeNull();
   });
 });

@@ -35,6 +35,21 @@ export type PublicService = {
 export type CreatorPage = { creator: PublicCreator; services: PublicService[] };
 
 /**
+ * Pick which service the booking page should show. A valid id (one of THIS
+ * creator's active services) preselects it; anything else — missing, deleted,
+ * archived, another creator's, or garbage — is simply absent from `services`
+ * and falls back to the first. Never throws. Returns undefined only when the
+ * creator has no bookable services (the page 404s before reaching here).
+ */
+export function selectBookingService<T extends { id: string }>(
+  services: T[],
+  serviceId?: string | null,
+): T | undefined {
+  if (services.length === 0) return undefined;
+  return services.find((s) => s.id === serviceId) ?? services[0];
+}
+
+/**
  * Load a PUBLISHED creator by handle plus its active booking services. Returns
  * null when the handle doesn't exist or isn't published — the page renders a
  * 404 in that case.
