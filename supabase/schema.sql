@@ -747,3 +747,29 @@ alter table public.notification_queue
   add column if not exists dedup_key text;
 create unique index if not exists notification_queue_dedup_idx
   on public.notification_queue (dedup_key);
+
+-- ============================================================
+-- Part 13 — Creator-scoped notification observability (additive, idempotent)
+--
+-- The notification dashboard (/dashboard/notifications) shows a creator their
+-- own recent notifications. Booking/billing rows link to a creator only via
+-- booking_id → bookings.creator_id, and monthly_summary rows have no booking at
+-- all (creator lives only in dedup_key) — so there was no uniform way to scope
+-- the queue to a creator. creator_id makes it a single `where creator_id = $1`,
+-- identical to the bookings/clients/dashboard read layers. Producers populate
+-- it going forward; the backfill below covers rows enqueued before this column.
+-- ============================================================
+alter table public.notification_queue
+  add column if not exists creator_id uuid references public.profiles (id) on delete cascade;
+create index if not exists notification_queue_creator_idx
+  on public.notification_queue (creator_id, created_at desc);
+
+-- Backfill: booking-linked rows take their booking's creator; monthly_summary
+-- rows carry the creator as the 2nd ':'-segment of dedup_key.
+update public.notification_queue nq
+   set creator_id = b.creator_id
+  from public.bookings b
+ where nq.booking_id = b.id and nq.creator_id is null;
+update public.notification_queue nq
+   set creator_id = nullif(split_part(nq.dedup_key, ':', 2), '')::uuid
+ where nq.creator_id is null and nq.dedup_key like 'monthly_summary:%';

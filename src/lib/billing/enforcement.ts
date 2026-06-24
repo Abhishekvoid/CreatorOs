@@ -115,8 +115,8 @@ export async function enqueueCreatorLimitNudges(db: Executor = getPool()): Promi
           and b.created_at <  ${IST_MONTH_END}
         group by b.creator_id
      )
-     insert into public.notification_queue (correlation_id, booking_id, type, channel, payload)
-     select m.latest_corr, m.latest_booking, 'creator_plan_limit', 'whatsapp',
+     insert into public.notification_queue (correlation_id, booking_id, creator_id, type, channel, payload)
+     select m.latest_corr, m.latest_booking, m.creator_id, 'creator_plan_limit', 'whatsapp',
             jsonb_build_object(
               'recipient', 'creator',
               'kind', 'plan_limit',

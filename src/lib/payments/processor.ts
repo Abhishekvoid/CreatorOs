@@ -85,8 +85,8 @@ async function enqueue(
   kind: "confirmation" | "cancellation",
 ): Promise<void> {
   await client.query(
-    `insert into public.notification_queue (correlation_id, booking_id, type, channel, payload)
-     select b.correlation_id, b.id, $2, 'whatsapp',
+    `insert into public.notification_queue (correlation_id, booking_id, creator_id, type, channel, payload)
+     select b.correlation_id, b.id, b.creator_id, $2, 'whatsapp',
             jsonb_build_object(
               'recipient', $4::text,
               'kind', $5::text,

@@ -54,6 +54,7 @@ const ICONS = {
   payments: "M2.5 5.5h19v13h-19z|M2.5 10h19|M6 15h4",
   analytics: "M4.5 20V11|M9.5 20V5|M14.5 20v-6|M19.5 20V9",
   settings: "M4 7.5h9|M17.5 7.5H20|M15.5 5.5v4|M4 16.5h2.5|M11 16.5h9|M8.5 14.5v4",
+  notifications: "M18 8.5a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9|M13.7 21a2 2 0 0 1-3.4 0",
   search: "M21 21l-4.8-4.8|M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z",
   menu: "M4 7h16M4 12h16M4 17h16",
   x: "M18 6L6 18M6 6l12 12",
@@ -76,6 +77,7 @@ const NAV: { group?: string; items: { label: string; icon: keyof typeof ICONS; h
   {
     group: "Operations",
     items: [
+      { label: "Notifications", icon: "notifications", href: "/dashboard/notifications" },
       { label: "Availability", icon: "availability" },
       { label: "Calendar", icon: "calendar" },
       { label: "Payments", icon: "payments" },
