@@ -68,7 +68,7 @@ const NAV: { group?: string; items: { label: string; icon: keyof typeof ICONS; h
     group: "Business",
     items: [
       { label: "Bookings", icon: "bookings", href: "/dashboard/bookings" },
-      { label: "Clients", icon: "clients" },
+      { label: "Clients", icon: "clients", href: "/dashboard/clients" },
       { label: "Services", icon: "services" },
       { label: "Products", icon: "products" },
     ],

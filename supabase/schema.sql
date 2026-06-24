@@ -652,3 +652,79 @@ grant all on public.subscriptions to service_role;
 alter table public.billing_events enable row level security;
 revoke all on public.billing_events from anon, authenticated;
 grant all on public.billing_events to service_role;
+
+-- ============================================================
+-- Part 11 — Client CRM (additive, idempotent)
+--
+-- FR-40/FR-41: every CONFIRMED booking automatically builds the creator's
+-- own customer database — no manual entry. The customer's identity already
+-- lives on the bookings row (customer_name / customer_phone / customer_email,
+-- all required at the booking API); this table is the per-creator aggregate.
+--
+-- `clients` is DOWNSTREAM OF TRUTH, written ONLY by the Processor (Part 4) in
+-- the SAME transaction as the booking's payment_pending -> confirmed flip —
+-- exactly as the processor owns notification_queue. It mutates nothing in the
+-- frozen money infrastructure; the processor remains the sole source of truth.
+--
+-- Like the booking/payment tables, it is service-role only: the dashboard
+-- reads it through the creator-scoped pg query layer (src/lib/clients.ts), the
+-- same path /dashboard/bookings already uses. No public/authenticated access.
+-- ============================================================
+create table if not exists public.clients (
+  id uuid primary key default gen_random_uuid(),
+  creator_id uuid not null references public.profiles (id) on delete cascade,
+  name text,
+  -- the WhatsApp number the customer booked with (bookings.customer_phone).
+  -- Identity key WITH creator_id: the same number under a different creator is
+  -- a different client, and creator isolation is preserved.
+  whatsapp text not null,
+  email text,
+  booking_count integer not null default 0 check (booking_count >= 0),
+  -- accumulator across every confirmed booking; bigint because the running
+  -- total can exceed a single booking's integer amount_paise range.
+  lifetime_spend_paise bigint not null default 0 check (lifetime_spend_paise >= 0),
+  first_booking_at timestamptz,
+  last_booking_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  -- one client per creator+number; also the upsert conflict target that makes
+  -- a replayed confirmation a no-op increment rather than a duplicate row.
+  unique (creator_id, whatsapp)
+);
+create index if not exists clients_creator_idx on public.clients (creator_id);
+
+drop trigger if exists clients_set_updated_at on public.clients;
+create trigger clients_set_updated_at
+  before update on public.clients
+  for each row execute function public.set_updated_at();
+
+-- Backfill: derive clients from bookings already confirmed before this table
+-- existed. Idempotent — `on conflict do nothing` plus the fact that re-running
+-- against an already-populated table changes nothing (the aggregate is
+-- recomputed wholesale from the source bookings each run, then only inserted
+-- where a client row is still absent). Only confirmed bookings with a non-null
+-- phone count, mirroring the live upsert's guard.
+insert into public.clients
+  (creator_id, name, whatsapp, email, booking_count, lifetime_spend_paise, first_booking_at, last_booking_at)
+select
+  b.creator_id,
+  (array_agg(b.customer_name order by b.created_at desc)
+     filter (where b.customer_name is not null and b.customer_name <> ''))[1],
+  b.customer_phone,
+  (array_agg(b.customer_email order by b.created_at desc)
+     filter (where b.customer_email is not null and b.customer_email <> ''))[1],
+  count(*),
+  coalesce(sum(b.amount_paise), 0),
+  min(b.created_at),
+  max(b.created_at)
+from public.bookings b
+where b.status = 'confirmed'
+  and b.customer_phone is not null
+group by b.creator_id, b.customer_phone
+on conflict (creator_id, whatsapp) do nothing;
+
+-- service-role only: RLS on, zero policies, grants revoked from anon/
+-- authenticated. Same model as the bookings table.
+alter table public.clients enable row level security;
+revoke all on public.clients from anon, authenticated;
+grant all on public.clients to service_role;
