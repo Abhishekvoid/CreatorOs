@@ -4,6 +4,7 @@ import {
   buildWhatsAppUrl,
   clientWhatsAppMessage,
 } from "@/lib/client-actions";
+import { selectBookingService } from "@/lib/public-profile";
 
 /**
  * Client actions (WhatsApp + Rebook) — pure URL/message builders.
@@ -70,5 +71,44 @@ describe("buildRebookPath", () => {
     expect(qs.get("name")).toBe("Asha");
     expect(qs.has("email")).toBe(false);
     expect(qs.has("phone")).toBe(false);
+  });
+
+  it("(rebook) includes the last booked service id when present", () => {
+    const path = buildRebookPath("meera", {
+      name: "Asha",
+      email: "a@x.com",
+      phone: "+919812345678",
+      service: "svc-123",
+    });
+    const qs = new URLSearchParams(path.split("?")[1]);
+    expect(qs.get("service")).toBe("svc-123");
+  });
+
+  it("(rebook) omits the service param when there's no last service", () => {
+    const path = buildRebookPath("meera", { name: "Asha", service: null });
+    const qs = new URLSearchParams(path.split("?")[1]);
+    expect(qs.has("service")).toBe(false);
+  });
+});
+
+describe("selectBookingService", () => {
+  const services = [{ id: "a" }, { id: "b" }, { id: "c" }];
+
+  it("(preselect) returns the matching service when the id is valid", () => {
+    expect(selectBookingService(services, "b")).toEqual({ id: "b" });
+  });
+
+  it("(missing fallback) returns the first service when no id is given", () => {
+    expect(selectBookingService(services, undefined)).toEqual({ id: "a" });
+    expect(selectBookingService(services, null)).toEqual({ id: "a" });
+  });
+
+  it("(deleted/cross-creator fallback) returns the first service for an unknown id", () => {
+    // a deleted/archived/another-creator's id is simply absent from the list
+    expect(selectBookingService(services, "not-in-list")).toEqual({ id: "a" });
+  });
+
+  it("returns undefined when the creator has no services", () => {
+    expect(selectBookingService([], "anything")).toBeUndefined();
   });
 });

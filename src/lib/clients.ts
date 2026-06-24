@@ -95,6 +95,8 @@ export type ClientDetail = {
   lifetimeSpendPaise: number;
   firstBookingAt: string | null; // ISO
   lastBookingAt: string | null; // ISO
+  /** service_id of the most recent confirmed booking; null if none or deleted */
+  lastServiceId: string | null;
   bookings: ClientBooking[];
 };
 
@@ -161,6 +163,21 @@ export async function getCreatorClientDetail(
     [creatorId, c.whatsapp],
   );
 
+  // The service this client last booked, for one-click rebooking. Confirmed
+  // only, creator-scoped, deterministic (latest booked first). May be null —
+  // no confirmed bookings, or the service was deleted (service_id set null) —
+  // in which case the rebook link simply omits ?service= and falls back.
+  const { rows: lastServiceRows } = await db.query<{ service_id: string | null }>(
+    `select b.service_id
+       from public.bookings b
+      where b.creator_id = $1
+        and b.customer_phone = $2
+        and b.status = 'confirmed'
+      order by b.created_at desc, b.id desc
+      limit 1`,
+    [creatorId, c.whatsapp],
+  );
+
   return {
     id: String(c.id),
     name: c.name ?? null,
@@ -170,6 +187,7 @@ export async function getCreatorClientDetail(
     lifetimeSpendPaise: num(c.lifetime_spend_paise),
     firstBookingAt: iso(c.first_booking_at),
     lastBookingAt: iso(c.last_booking_at),
+    lastServiceId: lastServiceRows[0]?.service_id ?? null,
     bookings: bookingRows.map((r) => ({
       id: String(r.id),
       serviceTitle: r.service_title ?? null,

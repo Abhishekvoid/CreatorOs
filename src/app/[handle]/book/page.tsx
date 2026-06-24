@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import BookingExperience from "@/components/public-profile/BookingExperience";
 import { LogoMark } from "@/components/ui";
-import { loadCreatorPage } from "@/lib/public-profile";
+import { loadCreatorPage, selectBookingService } from "@/lib/public-profile";
 
 export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }): Promise<Metadata> {
   const { handle } = await params;
@@ -23,7 +23,9 @@ export default async function BookPage({
   const page = await loadCreatorPage(handle);
   if (!page || page.services.length === 0) notFound();
 
-  const service = page.services.find((s) => s.id === serviceId) ?? page.services[0];
+  // A valid own active-service id preselects it; anything else (missing,
+  // deleted, archived, cross-creator, garbage) falls back to the first service.
+  const service = selectBookingService(page.services, serviceId)!;
 
   // Optional prefill from a rebook deep-link. These are treated purely as
   // editable form defaults — no lookup is performed against them — so the
