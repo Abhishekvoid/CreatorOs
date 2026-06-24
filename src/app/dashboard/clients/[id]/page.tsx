@@ -27,7 +27,7 @@ export default async function ClientDetailPage({
 
   return (
     <Shell creator={identity.creator}>
-      <ClientDetail client={client} />
+      <ClientDetail client={client} creatorName={identity.creator.name} creatorHandle={identity.creator.handle} />
     </Shell>
   );
 }

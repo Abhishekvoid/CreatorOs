@@ -16,14 +16,20 @@ export default async function BookPage({
   searchParams,
 }: {
   params: Promise<{ handle: string }>;
-  searchParams: Promise<{ service?: string }>;
+  searchParams: Promise<{ service?: string; name?: string; email?: string; phone?: string }>;
 }) {
   const { handle } = await params;
-  const { service: serviceId } = await searchParams;
+  const { service: serviceId, name, email, phone } = await searchParams;
   const page = await loadCreatorPage(handle);
   if (!page || page.services.length === 0) notFound();
 
   const service = page.services.find((s) => s.id === serviceId) ?? page.services[0];
+
+  // Optional prefill from a rebook deep-link. These are treated purely as
+  // editable form defaults — no lookup is performed against them — so the
+  // public page can never be used to read stored client data.
+  const initialCustomer =
+    name || email || phone ? { name, email, phone } : undefined;
 
   return (
     <main className="relative min-h-screen">
@@ -36,7 +42,7 @@ export default async function BookPage({
             ← Back to profile
           </Link>
         </div>
-        <BookingExperience handle={handle} creatorName={page.creator.name} service={service} />
+        <BookingExperience handle={handle} creatorName={page.creator.name} service={service} initialCustomer={initialCustomer} />
       </div>
       <footer className="border-t border-line bg-paper py-6">
         <Link href="/" className="mx-auto flex w-max items-center gap-2 text-[13px] font-bold text-muted transition-colors hover:text-ink">

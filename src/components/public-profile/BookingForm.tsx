@@ -14,16 +14,19 @@ export default function BookingForm({
   error,
   ctaLabel,
   onSubmit,
+  initial,
 }: {
   ready: boolean;
   processing: boolean;
   error: string | null;
   ctaLabel: string;
   onSubmit: (c: Customer) => void;
+  /** Optional prefill (e.g. a creator rebooking a known client). Editable. */
+  initial?: Partial<Customer>;
 }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [name, setName] = useState(initial?.name ?? "");
+  const [email, setEmail] = useState(initial?.email ?? "");
+  const [phone, setPhone] = useState(initial?.phone ?? "");
 
   const filled = name.trim() && email.trim() && phone.trim();
   const canSubmit = ready && !processing && Boolean(filled);
