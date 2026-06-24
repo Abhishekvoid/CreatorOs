@@ -171,7 +171,7 @@ export async function enqueueMonthlySummaries(
     const payload = {
       recipient: "creator",
       kind: "monthly_summary",
-      whatsapp: c.whatsapp_number,
+      to: c.whatsapp_number,
       month: summary.periodMonth,
       revenuePaise: summary.revenuePaise,
       bookings: summary.bookings,
