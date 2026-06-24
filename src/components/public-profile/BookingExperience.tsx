@@ -35,10 +35,13 @@ export default function BookingExperience({
   handle,
   creatorName,
   service,
+  initialCustomer,
 }: {
   handle: string;
   creatorName: string;
   service: PublicService;
+  /** Optional prefill from a rebook deep-link; seeds the form, fully editable. */
+  initialCustomer?: Partial<Customer>;
 }) {
   const router = useRouter();
   const [date, setDate] = useState<Date | null>(null);
@@ -138,6 +141,7 @@ export default function BookingExperience({
             error={error}
             ctaLabel={`Continue • ${inr(service.pricePaise)} →`}
             onSubmit={submit}
+            initial={initialCustomer}
           />
         </section>
       </div>

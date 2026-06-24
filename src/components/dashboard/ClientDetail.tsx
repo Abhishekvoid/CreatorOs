@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ClientBooking, ClientDetail as ClientDetailData } from "@/lib/clients";
+import { buildRebookPath, buildWhatsAppUrl, clientWhatsAppMessage } from "@/lib/client-actions";
 import { formatRupees, formatSlot } from "./format";
 import { StatusBadge } from "./BookingsList";
 
@@ -40,9 +41,27 @@ function HistoryRow({ b }: { b: ClientBooking }) {
   );
 }
 
-export default function ClientDetail({ client }: { client: ClientDetailData }) {
+export default function ClientDetail({
+  client,
+  creatorName,
+  creatorHandle,
+}: {
+  client: ClientDetailData;
+  creatorName: string;
+  creatorHandle: string;
+}) {
   const name = client.name?.trim() || "Guest";
   const since = client.firstBookingAt ? formatSlot(client.firstBookingAt).day : null;
+
+  // Creator-controlled actions. WhatsApp opens a prefilled chat; rebook
+  // deep-links into the public booking flow with this client's details
+  // prefilled. Both are built from data already authorized on this page.
+  const whatsappUrl = buildWhatsAppUrl(client.whatsapp, clientWhatsAppMessage(client.name, creatorName));
+  const rebookPath = buildRebookPath(creatorHandle, {
+    name: client.name,
+    email: client.email,
+    phone: client.whatsapp,
+  });
 
   return (
     <div className="flex max-w-[640px] flex-col gap-5">
@@ -61,6 +80,26 @@ export default function ClientDetail({ client }: { client: ClientDetailData }) {
         <div className="mt-5 flex gap-3 max-sm:flex-col">
           <Stat label="Lifetime spend" value={formatRupees(client.lifetimeSpendPaise)} />
           <Stat label="Bookings" value={String(client.bookingCount)} />
+        </div>
+
+        {/* creator-controlled actions */}
+        <div className="mt-5 flex flex-wrap gap-3">
+          {whatsappUrl ? (
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+              Message on WhatsApp
+            </a>
+          ) : (
+            <span
+              aria-disabled="true"
+              title="No WhatsApp number on file"
+              className="btn btn-primary cursor-not-allowed opacity-50 saturate-50"
+            >
+              Message on WhatsApp
+            </span>
+          )}
+          <a href={rebookPath} target="_blank" rel="noopener noreferrer" className="btn btn-grad">
+            Book Another Session
+          </a>
         </div>
       </section>
 
